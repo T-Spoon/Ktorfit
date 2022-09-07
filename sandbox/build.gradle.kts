@@ -5,8 +5,8 @@ plugins {
 }
 
 version = "1.0-SNAPSHOT"
-val koin_ksp_version= "1.0.1"
-val ktorVersion = "2.0.3"//"2.0.0-eap-354"
+val ktorVersion = "2.1.0"
+
 kotlin {
     jvm {
         compilations.all {
@@ -27,12 +27,13 @@ kotlin {
     }
 
     macosX64("macOS")
-
+    mingwX64()
     sourceSets {
         val commonMain by getting {
+
             dependencies {
                 implementation(project(":ktorfit-lib"))
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
                 implementation("io.ktor:ktor-client-serialization:$ktorVersion")
                 implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
@@ -42,20 +43,20 @@ kotlin {
         val linuxX64Main by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-core-native:1.3.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
-                implementation("io.ktor:ktor-client-curl:2.0.1")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+                implementation("io.ktor:ktor-client-curl:2.1.0")
 
             }
         }
 
 
         val jvmMain by getting {
-            //   kotlin.srcDir("build/kspCaches/jvmMain/")
+               kotlin.srcDir("build/generated/ksp/jvm/jvmMain/")
 
             dependencies {
                 implementation("io.ktor:ktor-client-core-jvm:$ktorVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.6.2")
-                implementation("io.reactivex.rxjava3:rxjava:3.1.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-rx3:1.6.4")
+                implementation("io.reactivex.rxjava3:rxjava:3.1.5")
                 implementation("io.ktor:ktor-client-gson:$ktorVersion")
                 implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
@@ -107,9 +108,10 @@ dependencies {
     add("kspJvm", project(":ktorfit-ksp"))
     add("kspIosX64", project(":ktorfit-ksp"))
 
-    add("kspJvmTest", project(":ktorfit-ksp"))
+   // add("kspJvmTest", project(":ktorfit-ksp"))
     add("kspJs", project(":ktorfit-ksp"))
     add("kspLinuxX64", project(":ktorfit-ksp"))
+    add("kspMingwX64", project(":ktorfit-ksp"))
 
 }
 

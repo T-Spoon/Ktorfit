@@ -11,15 +11,19 @@ import io.ktor.util.*
 import io.ktor.util.reflect.*
 
 
+/**
+ * This class will be used by the generated Code
+ * Please don't use the class directly
+ */
+@InternalKtorfitApi
 class KtorfitClient(val ktorfit: Ktorfit) {
 
-    val httpClient = ktorfit.httpClient
+   val httpClient = ktorfit.httpClient
 
     /**
      * Converts [value] to an URL encoded value
-     * Used by generated Code
      */
-    fun encode(value: Any): String {
+    private fun encode(value: Any): String {
         return value.toString().encodeURLParameter()
     }
 
@@ -27,11 +31,11 @@ class KtorfitClient(val ktorfit: Ktorfit) {
      * This will handle all requests for functions with suspend modifier
      * Used by generated Code
      */
-    suspend inline fun <reified TReturn, reified PRequest> suspendRequest(
+    suspend inline fun <reified TReturn, reified PRequest : Any> suspendRequest(
         requestData: RequestData
     ): TReturn {
 
-        if(TReturn::class == HttpStatement::class){
+        if (TReturn::class == HttpStatement::class) {
             return httpClient.prepareRequest {
                 requestBuilder(requestData)
             } as TReturn
@@ -39,6 +43,19 @@ class KtorfitClient(val ktorfit: Ktorfit) {
 
         val request = httpClient.request {
             requestBuilder(requestData)
+        }
+
+        ktorfit.suspendResponseConverters.firstOrNull { converter ->
+            converter.supportedType(
+                requestData.qualifiedRawTypeName,
+                true
+            )
+        }?.let {
+            return it.wrapSuspendResponse<PRequest>(
+                returnTypeName = requestData.qualifiedRawTypeName,
+                requestFunction = {
+                    Pair(typeInfo<PRequest>(), request)
+                }) as TReturn
         }
 
         return request.body()
@@ -55,12 +72,15 @@ class KtorfitClient(val ktorfit: Ktorfit) {
         requestData: RequestData
     ): TReturn {
 
-        ktorfit.getResponseConverters().firstOrNull { wrapper ->
-            wrapper.supportedType(
-                requestData.qualifiedRawTypeName
+        ktorfit.responseConverters.firstOrNull { converter ->
+            converter.supportedType(
+                requestData.qualifiedRawTypeName,
+                false
             )
         }?.let {
-            return it.wrapResponse<PRequest>(returnTypeName = requestData.qualifiedRawTypeName, requestFunction = {
+            return it.wrapResponse<PRequest>(
+                returnTypeName = requestData.qualifiedRawTypeName,
+                requestFunction = {
                 val response = httpClient.request {
                     requestBuilder(requestData)
                 }
@@ -87,9 +107,27 @@ class KtorfitClient(val ktorfit: Ktorfit) {
 
         val queryNameUrl = handleQueries(requestData)
 
-        url(ktorfit.baseUrl + requestData.relativeUrl + queryNameUrl)
+        val newURL = getRelativeUrl(requestData.paths, requestData.relativeUrl)
+
+        url(ktorfit.baseUrl + newURL + queryNameUrl)
 
         requestData.requestBuilder(this)
+    }
+
+    private fun getRelativeUrl(paths: List<PathData>, relativeUrl: String): String {
+        var newUrl = relativeUrl
+        paths.forEach {
+
+            val newPathValue = if (it.encoded) {
+                it.value
+            } else {
+                encode(it.value)
+            }
+
+            newUrl = newUrl.replace("{${it.key}}", newPathValue)
+        }
+
+        return newUrl
     }
 
     private fun HttpRequestBuilder.handleHeaders(headers: List<HeaderData>) {
@@ -101,16 +139,19 @@ class KtorfitClient(val ktorfit: Ktorfit) {
                             append(it.key, dataEntry.toString())
                         }
                     }
+
                     is Array<*> -> {
                         data.filterNotNull().forEach { dataEntry ->
                             append(it.key, dataEntry.toString())
                         }
                     }
+
                     is Map<*, *> -> {
-                        data.entries.forEach {
-                            append(it.key.toString(), it.value.toString())
+                        data.entries.forEach { entry ->
+                            append(entry.key.toString(), entry.value.toString())
                         }
                     }
+
                     else -> {
                         append(it.key, it.value.toString())
                     }
@@ -132,6 +173,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
                         }
                     }
                 }
+
                 is Array<*> -> {
                     data.filterNotNull().forEach { dataEntry ->
                         if (entry.encoded) {
@@ -141,6 +183,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
                         }
                     }
                 }
+
                 else -> {
                     if (entry.encoded) {
                         queryNames.add(entry.data.toString())
@@ -162,11 +205,13 @@ class KtorfitClient(val ktorfit: Ktorfit) {
                         setParameter(entry.encoded, entry.key, it.toString())
                     }
                 }
+
                 is Array<*> -> {
                     data.filterNotNull().forEach {
                         setParameter(entry.encoded, entry.key, it.toString())
                     }
                 }
+
                 else -> {
                     setParameter(entry.encoded, entry.key, entry.data.toString())
                 }
@@ -201,6 +246,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
                                 append(entry.encoded, entry.key, it as String)
                             }
                         }
+
                         else -> {
                             append(entry.encoded, entry.key, entry.data.toString())
                         }

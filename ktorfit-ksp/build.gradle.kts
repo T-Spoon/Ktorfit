@@ -1,6 +1,9 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val kspVersion: String by project
-
+val ktorfitVersion: String by project
+val autoService: String by project
+val kotlinPoet: String by project
+val detektVersion: String by project
 
 plugins {
     kotlin("jvm")
@@ -8,7 +11,7 @@ plugins {
     `maven-publish`
     signing
     id("org.jetbrains.dokka")
-
+    id("io.gitlab.arturbosch.detekt").version("1.21.0")
     kotlin("kapt")
 }
 tasks.withType<KotlinCompile> {
@@ -16,8 +19,9 @@ tasks.withType<KotlinCompile> {
 }
 
 
+
 group = "de.jensklingenberg.ktorfit"
-version = "1.0.0-beta09"
+version = ktorfitVersion
 
 dependencies {
     implementation(project(":ktorfit-annotations"))
@@ -25,11 +29,18 @@ dependencies {
     implementation("com.google.devtools.ksp:symbol-processing-api:$kspVersion")
     testImplementation("junit:junit:4.13.2")
     testImplementation("com.github.tschuchortdev:kotlin-compile-testing-ksp:1.4.9")
-    implementation("com.squareup:kotlinpoet:1.12.0")
-    implementation("com.squareup:kotlinpoet-ksp:1.12.0")
+    implementation("com.squareup:kotlinpoet:$kotlinPoet")
+    implementation("com.squareup:kotlinpoet-ksp:$kotlinPoet")
     testImplementation("com.google.truth:truth:1.1.3")
-    compileOnly ("com.google.auto.service:auto-service:1.0.1")
-    kapt ("com.google.auto.service:auto-service:1.0.1")
+    compileOnly ("com.google.auto.service:auto-service:$autoService")
+    kapt ("com.google.auto.service:auto-service:$autoService")
+}
+
+
+detekt {
+    toolVersion = "1.21.0"
+    config = files("../detekt-config.yml")
+    buildUponDefaultConfig = false
 }
 
 tasks.register("sourcesJar", Jar::class) {
@@ -91,10 +102,6 @@ publishing {
                     password = property("sonatypePassword") as String
                 }
             }
-        }
-        maven {
-            name = "test"
-            setUrl("file://${rootProject.buildDir}/localMaven")
         }
     }
 }

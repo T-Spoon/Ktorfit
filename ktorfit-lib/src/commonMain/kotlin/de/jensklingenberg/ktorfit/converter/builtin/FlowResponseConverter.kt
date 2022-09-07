@@ -1,5 +1,6 @@
-package de.jensklingenberg.ktorfit.adapter
+package de.jensklingenberg.ktorfit.converter.builtin
 
+import de.jensklingenberg.ktorfit.converter.ResponseConverter
 import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 import kotlinx.coroutines.flow.flow
@@ -9,7 +10,7 @@ import kotlinx.coroutines.flow.flow
  */
 class FlowResponseConverter : ResponseConverter {
 
-    override fun supportedType(returnTypeName: String): Boolean {
+    override fun supportedType(returnTypeName: String, isSuspend: Boolean): Boolean {
         return returnTypeName == "kotlinx.coroutines.flow.Flow"
     }
 

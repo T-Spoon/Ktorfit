@@ -1,7 +1,5 @@
 plugins {
     kotlin("multiplatform")
-
-
     id("maven-publish")
     id("signing")
     id("com.vanniktech.maven.publish")
@@ -13,8 +11,9 @@ plugins {
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
+val ktorfitVersion: String by project
 
-version = "1.0.0-beta09"
+version = ktorfitVersion
 
 kotlin {
 
@@ -37,7 +36,7 @@ kotlin {
             }
         }
     }
-
+    mingwX64()
     js(IR) {
         this.nodejs()
         binaries.executable() // not applicable to BOTH, see details below
@@ -156,10 +155,6 @@ publishing {
                     password = property("sonatypePassword") as String
                 }
             }
-        }
-        maven {
-            name = "test"
-            setUrl("file://${rootProject.buildDir}/localMaven")
         }
     }
 }

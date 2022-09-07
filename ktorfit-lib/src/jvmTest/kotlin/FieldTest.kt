@@ -25,13 +25,13 @@ class FieldTest {
             }
         }
 
-        val ktorfit = Ktorfit("www.test.de/", HttpClient(engine))
+        val ktorfit = Ktorfit.Builder().baseUrl("www.test.de/").httpClient(HttpClient(engine)).build()
         runBlocking {
             val requestData = RequestData(
                 method = "GET",
                 relativeUrl = "",
                 qualifiedRawTypeName = "kotlin.String",
-                fields = listOf(FieldData(false, testKey, testValue, FieldType.FIELD)),
+                fields = listOf(FieldData(testKey, testValue, false, FieldType.FIELD)),
             )
             KtorfitClient(ktorfit).suspendRequest<String, String>(requestData)
         }

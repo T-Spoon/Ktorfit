@@ -1,12 +1,11 @@
 package de.jensklingenberg.ktorfit.requestData
 
-import de.jensklingenberg.ktorfit.findAnnotationOrNull
-import de.jensklingenberg.ktorfit.hasAnnotation
+
 import de.jensklingenberg.ktorfit.model.ParameterData
 import de.jensklingenberg.ktorfit.model.annotations.Field
 import de.jensklingenberg.ktorfit.model.annotations.FieldMap
-import de.jensklingenberg.ktorfit.surroundIfNotEmpty
-import de.jensklingenberg.ktorfit.surroundWith
+import de.jensklingenberg.ktorfit.utils.surroundIfNotEmpty
+import de.jensklingenberg.ktorfit.utils.surroundWith
 
 /**
  * Source for the "fields" argument of [de.jensklingenberg.ktorfit.RequestData]
@@ -24,7 +23,7 @@ fun getFieldArgumentsText(params: List<ParameterData>): String {
         val queryKey = query.value.surroundWith("\"")
         val type = "FieldType.FIELD"
 
-        "FieldData($encoded,$queryKey,$data,$type)"
+        "FieldData($queryKey,$data,$encoded,$type)"
     }
 
     myFieldStrings.addAll(fieldStrings)
@@ -36,7 +35,7 @@ fun getFieldArgumentsText(params: List<ParameterData>): String {
         val keyName = "\"\""
         val type = "FieldType.FIELDMAP"
 
-        "FieldData($encoded,$keyName,$data,$type)"
+        "FieldData($keyName,$data,$encoded,$type)"
     }
 
     myFieldStrings.addAll(fieldMapStrings)

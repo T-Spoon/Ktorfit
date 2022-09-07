@@ -7,15 +7,26 @@ plugins {
     id("com.vanniktech.maven.publish")
     id("org.jetbrains.dokka")
     id("com.android.library")
+    id("io.gitlab.arturbosch.detekt").version("1.21.0")
 
 }
+
+
+detekt {
+    toolVersion = "1.21.0"
+    config = files("../detekt-config.yml")
+    buildUponDefaultConfig = false
+}
+
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
+val ktorfitVersion: String by project
+val ktorVersion: String by project
 
-version = "1.0.0-beta09"
-val ktorVersion = "2.0.3"
+version = ktorfitVersion
+
 kotlin {
 
     android(){
@@ -37,6 +48,7 @@ kotlin {
             }
         }
     }
+    mingwX64()
 
     js(IR) {
         this.nodejs()
@@ -53,7 +65,7 @@ kotlin {
                 api(project(":ktorfit-annotations"))
 
                 api("io.ktor:ktor-client-core:$ktorVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
 
             }
         }
@@ -61,6 +73,13 @@ kotlin {
             dependencies {
                 implementation("io.ktor:ktor-client-core-linuxx64:$ktorVersion")
                 implementation("io.ktor:ktor-client-cio-linuxx64:$ktorVersion")
+
+            }
+        }
+
+        val mingwX64Main by getting {
+            dependencies {
+                implementation("io.ktor:ktor-client-core-mingwx64:$ktorVersion")
 
             }
         }
@@ -173,10 +192,7 @@ publishing {
                 }
             }
         }
-        maven {
-            name = "test"
-            setUrl("file://${rootProject.buildDir}/localMaven")
-        }
+
     }
 }
 

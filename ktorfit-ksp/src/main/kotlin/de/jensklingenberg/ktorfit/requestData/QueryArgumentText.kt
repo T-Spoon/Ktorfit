@@ -1,19 +1,18 @@
 package de.jensklingenberg.ktorfit.requestData
 
-import de.jensklingenberg.ktorfit.findAnnotationOrNull
-import de.jensklingenberg.ktorfit.hasAnnotation
+
 import de.jensklingenberg.ktorfit.model.ParameterData
 import de.jensklingenberg.ktorfit.model.annotations.Query
 import de.jensklingenberg.ktorfit.model.annotations.QueryMap
 import de.jensklingenberg.ktorfit.model.annotations.QueryName
-import de.jensklingenberg.ktorfit.surroundIfNotEmpty
+import de.jensklingenberg.ktorfit.utils.surroundIfNotEmpty
 
 /**
  * Source for the "queries" argument of [de.jensklingenberg.ktorfit.RequestData]
  */
 
 fun getQueryArgumentText(params: List<ParameterData>): String {
-    //Get all Parameter with @Query and add them to a map
+    //Get all Parameter with @Query and add them to a list
 
     val myQueryStrings = mutableListOf<String>()
 
@@ -24,7 +23,7 @@ fun getQueryArgumentText(params: List<ParameterData>): String {
         val queryKey = "\"${query.value}\""
         val type = "QueryType.QUERY"
 
-        "QueryData($encoded,$queryKey,$data,$type)"
+        "QueryData($queryKey,$data,$encoded,$type)"
     }
 
     myQueryStrings.addAll(queryStrings)
@@ -37,7 +36,7 @@ fun getQueryArgumentText(params: List<ParameterData>): String {
         val queryKey = "\"\""
         val type = "QueryType.QUERYNAME"
 
-        "QueryData($encoded,$queryKey,$data,$type)"
+        "QueryData($queryKey,$data,$encoded,$type)"
     }
 
     myQueryStrings.addAll(queryNamesStrings)
@@ -49,7 +48,7 @@ fun getQueryArgumentText(params: List<ParameterData>): String {
         val queryKey = "\"\""
         val type = "QueryType.QUERYMAP"
 
-        "QueryData($encoded,$queryKey,$data,$type)"
+        "QueryData($queryKey,$data,$encoded,$type)"
     }
 
     myQueryStrings.addAll(queryMapStrings)

@@ -1,6 +1,6 @@
 package de.jensklingenberg.ktorfit.demo
 
-import de.jensklingenberg.ktorfit.adapter.ResponseConverter
+import de.jensklingenberg.ktorfit.converter.ResponseConverter
 import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 import io.reactivex.rxjava3.core.Completable
@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class RxResponseConverter : ResponseConverter {
 
-    override fun supportedType(returnTypeName: String): Boolean {
+    override fun supportedType(returnTypeName: String, isSuspend: Boolean): Boolean {
         return listOf("io.reactivex.rxjava3.core.Single", "io.reactivex.rxjava3.core.Observable","io.reactivex.rxjava3.core.Completable").contains(
             returnTypeName
         )
@@ -93,7 +93,6 @@ class RxResponseConverter : ResponseConverter {
                             }
                         }
                     } catch (ex: NumberFormatException) {
-                        println("dfsdfsdfsdfds")
                         e.onError(ex)
                     }
                 }
