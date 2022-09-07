@@ -2,12 +2,15 @@ package de.jensklingenberg.ktorfit.demo
 
 
 import com.example.api.StarWarsApi
+import de.jensklingenberg.ktorfit.Ktorfit
 import de.jensklingenberg.ktorfit.converter.builtin.FlowResponseConverter
 import de.jensklingenberg.ktorfit.converter.builtin.KtorfitSuspendCallResponseConverter
 import de.jensklingenberg.ktorfit.create
+import de.jensklingenberg.ktorfit.internal.KtorfitClient
 import de.jensklingenberg.ktorfit.ktorfit
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.websocket.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -19,6 +22,7 @@ val jvmClient = HttpClient {
     install(ContentNegotiation) {
         json(Json { isLenient = true; ignoreUnknownKeys = true })
     }
+    install(WebSockets)
     this.developmentMode = true
     expectSuccess = false
 
@@ -42,6 +46,8 @@ fun main() {
 
     println("==============================================")
     runBlocking {
+       KtorfitClient(jvmKtorfit).socket()
+
         val response = exampleApi.getPersonById2(2)
 
         println("LI    " + response)

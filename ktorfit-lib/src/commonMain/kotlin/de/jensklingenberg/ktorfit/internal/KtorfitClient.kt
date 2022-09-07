@@ -2,6 +2,7 @@ package de.jensklingenberg.ktorfit.internal
 
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.call.*
+import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
@@ -9,6 +10,7 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.util.*
 import io.ktor.util.reflect.*
+import io.ktor.websocket.*
 
 
 /**
@@ -91,6 +93,18 @@ class KtorfitClient(val ktorfit: Ktorfit) {
         throw IllegalArgumentException("Add a ResponseConverter for " + requestData.qualifiedRawTypeName + " or make function suspend")
     }
 
+    suspend fun socket(){
+        httpClient.webSocket(method = HttpMethod.Get, host = "127.0.0.1", port = 8080, path = "/echo") {
+            while(true) {
+                val othersMessage = incoming.receive() as? Frame.Text
+                println(othersMessage?.readText())
+                val myMessage = "Hello World"
+                if(myMessage != null) {
+                    send(myMessage)
+                }
+            }
+        }
+    }
 
     fun HttpRequestBuilder.requestBuilder(
         requestData: RequestData

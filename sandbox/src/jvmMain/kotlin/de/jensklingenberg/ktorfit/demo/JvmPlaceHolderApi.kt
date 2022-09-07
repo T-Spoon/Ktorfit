@@ -2,10 +2,7 @@ package de.jensklingenberg.ktorfit.demo
 
 import com.example.api.StarWarsApi
 import com.example.model.People
-import de.jensklingenberg.ktorfit.http.GET
-import de.jensklingenberg.ktorfit.http.Path
-import de.jensklingenberg.ktorfit.http.Query
-import de.jensklingenberg.ktorfit.http.Streaming
+import de.jensklingenberg.ktorfit.http.*
 import io.ktor.client.statement.*
 
 interface JvmPlaceHolderApi : StarWarsApi {
@@ -22,4 +19,7 @@ interface JvmPlaceHolderApi : StarWarsApi {
 
     @GET("people/{id}/")
     suspend fun getPersonById2AsResponse(@Path("id") peopleId: Int): Response<People>
+
+    @GET()
+    suspend fun getResponse(@Url peopleId: String): Response<People>
 }

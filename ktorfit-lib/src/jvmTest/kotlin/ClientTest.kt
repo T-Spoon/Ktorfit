@@ -40,7 +40,7 @@ class ClientTest {
         val ktorfit = Ktorfit.Builder().baseUrl("www.test.de/").httpClient(HttpClient(engine)).build()
         runBlocking {
             val requestData = RequestData(
-                method = "GET", relativeUrl = "posts", qualifiedRawTypeName = "kotlin.String"
+                method = "GET", relativeUrl = "www.test.de/posts", qualifiedRawTypeName = "kotlin.String"
             )
             KtorfitClient(ktorfit).suspendRequest<String, String>(requestData)
         }
