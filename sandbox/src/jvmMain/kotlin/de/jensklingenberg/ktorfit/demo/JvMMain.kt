@@ -3,29 +3,45 @@ package de.jensklingenberg.ktorfit.demo
 
 import com.example.api.StarWarsApi
 import com.example.api.createJsonPlaceHolderApi
-import de.jensklingenberg.ktorfit.Callback
+import com.example.model.People
+import de.jensklingenberg.ktorfit.*
 import de.jensklingenberg.ktorfit.converter.builtin.FlowResponseConverter
 import de.jensklingenberg.ktorfit.converter.builtin.KtorfitCallResponseConverter
-import de.jensklingenberg.ktorfit.create
-import de.jensklingenberg.ktorfit.ktorfit
+import de.jensklingenberg.ktorfit.internal.TestConverterFactory
 import io.ktor.client.*
-import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.call.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.statement.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
+class PeopleTestConverterFactory: KConverter.Factory{
+
+    override fun responseBodyConverter(type: String, ktorfit: Ktorfit): KConverter<HttpResponse, *>? {
+        return PeopleKConverter()
+    }
+}
+
+class PeopleKConverter : KConverter<HttpResponse, People> {
+    override suspend fun convert(httpResponse: HttpResponse): People {
+
+        val str =  httpResponse.body<String>()
+        var json = Json { ignoreUnknownKeys = true }
+        val test =json.decodeFromString<People>(str)
+        return test
+    }
+
+}
 
 val jvmClient = HttpClient {
 
     install(Logging) {
         level = LogLevel.ALL
     }
-    install(ContentNegotiation) {
-        json(Json { isLenient = true; ignoreUnknownKeys = true })
-    }
+
     this.developmentMode = true
     expectSuccess = false
 
@@ -41,6 +57,7 @@ val jvmKtorfit = ktorfit {
         KtorfitCallResponseConverter(),
         SuspendConverter()
     )
+    kConverter(TestConverterFactory(),PeopleTestConverterFactory())
 }
 
 
@@ -53,7 +70,7 @@ fun main() {
     runBlocking {
         jsonPlaceHolderApi.suscallPosts().onExecute(object : Callback<String> {
             override fun onResponse(call: String, response: HttpResponse) {
-
+                call
             }
 
             override fun onError(exception: Throwable) {
@@ -61,11 +78,9 @@ fun main() {
             }
 
         })
-        val response = exampleApi.testQuery(4, listOf("a",null,"c"))
 
-
-        println("LI    " + response)
-
+       val peo = exampleApi.getPersonById2(3)
+        println(peo)
 
         delay(3000)
     }

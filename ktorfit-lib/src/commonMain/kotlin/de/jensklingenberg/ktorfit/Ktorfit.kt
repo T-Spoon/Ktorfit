@@ -6,7 +6,17 @@ import de.jensklingenberg.ktorfit.converter.ResponseConverter
 import de.jensklingenberg.ktorfit.converter.SuspendResponseConverter
 import io.ktor.client.*
 import io.ktor.client.engine.*
+import io.ktor.client.statement.*
 
+
+interface KConverter<F, T> {
+    interface Factory {
+        fun responseBodyConverter(type: String, ktorfit: Ktorfit): KConverter<HttpResponse, *>? = null
+    }
+
+
+    suspend fun convert(httpResponse: HttpResponse): T
+}
 
 /**
  * Main class for Ktorfit, create the class than use the [create<T>()] function.
@@ -15,7 +25,8 @@ class Ktorfit private constructor(
     val baseUrl: String,
     val httpClient: HttpClient = HttpClient(),
     val responseConverters: Set<ResponseConverter>,
-    val suspendResponseConverters: Set<SuspendResponseConverter>
+    val suspendResponseConverters: Set<SuspendResponseConverter>,
+    val kConverter: Set<KConverter.Factory> = emptySet()
 ) {
 
     @Deprecated(
@@ -38,6 +49,7 @@ class Ktorfit private constructor(
         private var _httpClient = HttpClient()
         private var _responseConverter: MutableSet<ResponseConverter> = mutableSetOf()
         private var _suspendResponseConverter: MutableSet<SuspendResponseConverter> = mutableSetOf()
+        private var _kConverter: MutableSet<KConverter.Factory> = mutableSetOf()
 
         /**
          * That will be used for every request with object
@@ -50,7 +62,7 @@ class Ktorfit private constructor(
             if (!url.endsWith("/")) {
                 throw IllegalStateException("Base URL needs to end with /")
             }
-            if(!url.startsWith("http") && !url.startsWith("https")){
+            if (!url.startsWith("http") && !url.startsWith("https")) {
                 throw IllegalStateException(EXPECTED_URL_SCHEME)
             }
             this._baseUrl = url
@@ -94,7 +106,10 @@ class Ktorfit private constructor(
         /**
          * Client-Builder with engine factory that will be used for every request with object
          */
-        fun <T : HttpClientEngineConfig> httpClient(engineFactory: HttpClientEngineFactory<T>, config: HttpClientConfig<T>.() -> Unit) = apply {
+        fun <T : HttpClientEngineConfig> httpClient(
+            engineFactory: HttpClientEngineFactory<T>,
+            config: HttpClientConfig<T>.() -> Unit
+        ) = apply {
             this._httpClient = HttpClient(engineFactory, config)
         }
 
@@ -112,6 +127,12 @@ class Ktorfit private constructor(
             }
         }
 
+        fun kConverter(vararg converters: KConverter.Factory) = apply {
+            converters.forEach { converter ->
+                _kConverter.add(converter)
+            }
+        }
+
         /**
          * Apply changes to builder and get the Ktorfit instance without the need of calling [build] afterwards.
          */
@@ -121,7 +142,7 @@ class Ktorfit private constructor(
          * Creates an instance of Ktorfit with specified baseUrl and HttpClient.
          */
         fun build(): Ktorfit {
-            return Ktorfit(_baseUrl, _httpClient, _responseConverter, _suspendResponseConverter)
+            return Ktorfit(_baseUrl, _httpClient, _responseConverter, _suspendResponseConverter, _kConverter)
         }
     }
 }

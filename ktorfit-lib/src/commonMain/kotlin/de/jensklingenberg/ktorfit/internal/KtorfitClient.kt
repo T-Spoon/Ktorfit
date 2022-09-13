@@ -1,5 +1,6 @@
 package de.jensklingenberg.ktorfit.internal
 
+import de.jensklingenberg.ktorfit.KConverter
 import de.jensklingenberg.ktorfit.Ktorfit
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -9,6 +10,27 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.util.*
 import io.ktor.util.reflect.*
+
+
+class TestConverterFactory: KConverter.Factory{
+
+    override fun responseBodyConverter(type: String, ktorfit: Ktorfit): KConverter<HttpResponse, *>? {
+        return if(type.contains("String")){
+            KConverter()
+        }else{
+            null
+        }
+    }
+}
+
+class KConverter : KConverter<HttpResponse,String>{
+    override suspend fun convert(httpResponse: HttpResponse): String {
+        return httpResponse.body<String>()
+    }
+
+}
+
+
 
 
 /**
@@ -41,7 +63,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
             } as TReturn
         }
 
-        val request = httpClient.request {
+        val response = httpClient.request {
             requestBuilder(requestData)
         }
 
@@ -54,12 +76,17 @@ class KtorfitClient(val ktorfit: Ktorfit) {
             return it.wrapSuspendResponse<PRequest>(
                 returnTypeName = requestData.qualifiedRawTypeName,
                 requestFunction = {
-                    Pair(typeInfo<PRequest>(), request)
+                    Pair(typeInfo<PRequest>(), response)
                 },ktorfit) as TReturn
         }
 
         return try {
-            request.body<TReturn>()
+            ktorfit.kConverter.firstOrNull {
+                it.responseBodyConverter(requestData.qualifiedRawTypeName,ktorfit) != null
+            }?.let {
+               return it.responseBodyConverter(requestData.qualifiedRawTypeName,ktorfit)!!.convert(response) as TReturn
+            }
+           // response.body<TReturn>()
         } catch (exception: Exception) {
             val typeIsNullable = requestData.qualifiedRawTypeName.endsWith("?")
             return if (typeIsNullable) {
