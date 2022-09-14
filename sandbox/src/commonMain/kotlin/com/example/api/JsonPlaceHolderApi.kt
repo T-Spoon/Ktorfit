@@ -31,7 +31,7 @@ interface JsonPlaceHolderApi {
     fun callPosts(): Call<String>
 
     @GET("posts")
-    suspend fun suscallPosts(): Call<String>
+    fun suscallPosts(): Call<String>
 
     @Streaming
     @GET("docs/response.html#streaming")

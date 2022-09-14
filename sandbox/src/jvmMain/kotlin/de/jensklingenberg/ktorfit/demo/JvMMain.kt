@@ -1,20 +1,21 @@
 package de.jensklingenberg.ktorfit.demo
 
 
+import com.example.api.JsonPlaceHolderApi
 import com.example.api.StarWarsApi
-import com.example.api.createJsonPlaceHolderApi
 import com.example.model.People
 import de.jensklingenberg.ktorfit.*
-import de.jensklingenberg.ktorfit.converter.builtin.FlowResponseConverter
-import de.jensklingenberg.ktorfit.converter.builtin.KtorfitCallResponseConverter
+import de.jensklingenberg.ktorfit.converter.builtin.FlowRequestConverter
+import de.jensklingenberg.ktorfit.converter.builtin.KtorfitCallRequestConverter
 import de.jensklingenberg.ktorfit.internal.TestConverterFactory
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.statement.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -36,12 +37,46 @@ class PeopleKConverter : KConverter<HttpResponse, People> {
 
 }
 
+class KtorfitCallConverterFactory: KConverter.Factory{
+
+    override fun responseBodyConverter(type: String, ktorfit: Ktorfit): KConverter<HttpResponse, *>? {
+        return KtorfitCallKConverter()
+    }
+}
+
+class KtorfitCallKConverter : KConverter<HttpResponse, Call<*>> {
+    override suspend fun convert(httpResponse: HttpResponse): Call<*> {
+        val str =  httpResponse.body<String>()
+return object : Call<Any>{
+    override fun onExecute(callBack: Callback<Any>) {
+        try {
+
+            var json = Json { ignoreUnknownKeys = true }
+            val test =json.decodeFromString<People>(str)
+            callBack.onResponse(str,httpResponse)
+        }catch (ex: Exception){
+            callBack.onError(ex)
+        }
+    }
+
+}
+
+
+    }
+
+}
+
+
 val jvmClient = HttpClient {
 
     install(Logging) {
         level = LogLevel.ALL
     }
+    install(ContentNegotiation) {
 
+
+        json(Json { isLenient = true; ignoreUnknownKeys = true })
+    }
     this.developmentMode = true
     expectSuccess = false
 
@@ -51,36 +86,58 @@ val jvmClient = HttpClient {
 val jvmKtorfit = ktorfit {
     baseUrl(StarWarsApi.baseUrl)
     httpClient(jvmClient)
-    responseConverter(
-        FlowResponseConverter(),
-        RxResponseConverter(),
-        KtorfitCallResponseConverter(),
-        SuspendConverter()
+    requestConverter(
+        FlowRequestConverter(),
+        RxRequestConverter(),
+        KtorfitCallRequestConverter(),
+        Converter()
     )
-    kConverter(TestConverterFactory(),PeopleTestConverterFactory())
+    repsonseConverter(
+        TestConverterFactory(),
+        PeopleTestConverterFactory()
+    )
 }
 
+val testKtorfit = ktorfit {
+    baseUrl(JsonPlaceHolderApi.baseUrl)
+    httpClient(jvmClient)
+    requestConverter(
+        FlowRequestConverter(),
+        RxRequestConverter(),
+        KtorfitCallRequestConverter(),
+        Converter()
+    )
+   // kConverter(TestConverterFactory(),PeopleTestConverterFactory())
+}
 
 fun main() {
-    val exampleApi = jvmKtorfit.create<JvmPlaceHolderApi>()
-    val jsonPlaceHolderApi = jvmKtorfit.createJsonPlaceHolderApi()
+
+    val testApi = jvmKtorfit.create<JvmPlaceHolderApi>()
+
+
     println("==============================================")
 
 
+
     runBlocking {
-        jsonPlaceHolderApi.suscallPosts().onExecute(object : Callback<String> {
-            override fun onResponse(call: String, response: HttpResponse) {
-                call
+
+        val tec =  testApi.getPersonById2AsResponse(3)
+
+        when(tec){
+
+            is Response.Success<People> -> {
+                tec.data
             }
 
-            override fun onError(exception: Throwable) {
 
+            else -> {
+                println("Error")
             }
+        }
 
-        })
+        println(tec)
 
-       val peo = exampleApi.getPersonById2(3)
-        println(peo)
+
 
         delay(3000)
     }

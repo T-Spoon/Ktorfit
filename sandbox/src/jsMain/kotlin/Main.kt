@@ -14,12 +14,12 @@ fun main() {
 
     jsonPlaceHolderApi.callPosts().onExecute(object :Callback<String>{
         override fun onResponse(call: String, response: HttpResponse) {
-            println("onResponse"+ call)
+           // println("onResponse"+ call)
 
         }
 
         override fun onError(exception: Throwable) {
-            println("onError"+ exception)
+            //println("onError"+ exception)
         }
 
     })
@@ -28,7 +28,7 @@ fun main() {
     GlobalScope.launch {
         println("Launch")
         jsonPlaceHolderApi.getPosts().collect {
-            println("HALLO"+it)
+           // println("HALLO"+it)
         }
 
         delay(3000)

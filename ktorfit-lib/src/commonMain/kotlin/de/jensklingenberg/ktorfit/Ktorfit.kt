@@ -2,8 +2,8 @@ package de.jensklingenberg.ktorfit
 
 import de.jensklingenberg.ktorfit.Strings.Companion.EXPECTED_URL_SCHEME
 import de.jensklingenberg.ktorfit.converter.CoreResponseConverter
+import de.jensklingenberg.ktorfit.converter.RequestConverter
 import de.jensklingenberg.ktorfit.converter.ResponseConverter
-import de.jensklingenberg.ktorfit.converter.SuspendResponseConverter
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.statement.*
@@ -24,8 +24,8 @@ interface KConverter<F, T> {
 class Ktorfit private constructor(
     val baseUrl: String,
     val httpClient: HttpClient = HttpClient(),
+    val requestConverters: Set<RequestConverter>,
     val responseConverters: Set<ResponseConverter>,
-    val suspendResponseConverters: Set<SuspendResponseConverter>,
     val kConverter: Set<KConverter.Factory> = emptySet()
 ) {
 
@@ -47,8 +47,8 @@ class Ktorfit private constructor(
     class Builder {
         private var _baseUrl: String = ""
         private var _httpClient = HttpClient()
-        private var _responseConverter: MutableSet<ResponseConverter> = mutableSetOf()
-        private var _suspendResponseConverter: MutableSet<SuspendResponseConverter> = mutableSetOf()
+        private var _requestConverter: MutableSet<RequestConverter> = mutableSetOf()
+        private var _ResponseConverter: MutableSet<ResponseConverter> = mutableSetOf()
         private var _kConverter: MutableSet<KConverter.Factory> = mutableSetOf()
 
         /**
@@ -114,20 +114,20 @@ class Ktorfit private constructor(
         }
 
         /**
-         * Use this to add [ResponseConverter] or [SuspendResponseConverter] for unsupported return types of requests
+         * Use this to add [RequestConverter] or [ResponseConverter] for unsupported return types of requests
          */
-        fun responseConverter(vararg converters: CoreResponseConverter) = apply {
+        fun requestConverter(vararg converters: CoreResponseConverter) = apply {
             converters.forEach { converter ->
-                if (converter is ResponseConverter) {
-                    this._responseConverter.add(converter)
+                if (converter is RequestConverter) {
+                    this._requestConverter.add(converter)
                 }
-                if (converter is SuspendResponseConverter) {
-                    this._suspendResponseConverter.add(converter)
+                if (converter is ResponseConverter) {
+                    this._ResponseConverter.add(converter)
                 }
             }
         }
 
-        fun kConverter(vararg converters: KConverter.Factory) = apply {
+        fun repsonseConverter(vararg converters: KConverter.Factory) = apply {
             converters.forEach { converter ->
                 _kConverter.add(converter)
             }
@@ -142,7 +142,7 @@ class Ktorfit private constructor(
          * Creates an instance of Ktorfit with specified baseUrl and HttpClient.
          */
         fun build(): Ktorfit {
-            return Ktorfit(_baseUrl, _httpClient, _responseConverter, _suspendResponseConverter, _kConverter)
+            return Ktorfit(_baseUrl, _httpClient, _requestConverter, _ResponseConverter, _kConverter)
         }
     }
 }

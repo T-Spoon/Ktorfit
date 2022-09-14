@@ -6,20 +6,19 @@ import io.ktor.util.reflect.*
 
 /**
  * Implement this to support wrapping for custom types
- * in suspend functions e.g.
- * suspend fun test() : MyCustomType<String>
+ *  e.g. fun test() : MyCustomType<String>
  */
-interface SuspendResponseConverter : CoreResponseConverter {
+interface RequestConverter : CoreResponseConverter {
 
     /**
-     * @param requestFunction a suspend function that will return a typeInfo of Ktor's requested type and the [HttpResponse]
      * @param returnTypeName is the qualified name of the outer type of
+     * @param requestFunction a suspend function that will return a typeInfo of Ktor's requested type and the [HttpResponse]
      * the return type. e.g. for Flow<String> it will be kotlinx.coroutines.flow.Flow
      * @return the wrapped response
      */
-    suspend fun <PRequest : Any?> wrapSuspendResponse(
+    fun <PRequest : Any?> convertResponse(
         returnTypeName: String,
-        requestFunction: suspend () -> Pair<TypeInfo, HttpResponse>,
+        requestFunction: suspend () -> Pair<PRequest, HttpResponse>,
         ktorfit: Ktorfit
     ): Any
 

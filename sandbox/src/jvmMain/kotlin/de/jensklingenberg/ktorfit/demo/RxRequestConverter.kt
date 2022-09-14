@@ -1,7 +1,7 @@
 package de.jensklingenberg.ktorfit.demo
 
 import de.jensklingenberg.ktorfit.Ktorfit
-import de.jensklingenberg.ktorfit.converter.ResponseConverter
+import de.jensklingenberg.ktorfit.converter.RequestConverter
 import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 import io.reactivex.rxjava3.core.Completable
@@ -11,7 +11,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-class RxResponseConverter : ResponseConverter {
+class RxRequestConverter : RequestConverter {
 
     override fun supportedType(returnTypeName: String, isSuspend: Boolean): Boolean {
         return listOf("io.reactivex.rxjava3.core.Single", "io.reactivex.rxjava3.core.Observable","io.reactivex.rxjava3.core.Completable").contains(
@@ -19,9 +19,9 @@ class RxResponseConverter : ResponseConverter {
         )
     }
 
-    override fun <PRequest> wrapResponse(
+    override fun <PRequest> convertResponse(
         returnTypeName: String,
-        requestFunction: suspend () -> Pair<TypeInfo, HttpResponse>,
+        requestFunction: suspend () -> Pair<PRequest, HttpResponse>,
         ktorfit: Ktorfit
     ): Any {
 
@@ -34,7 +34,7 @@ class RxResponseConverter : ResponseConverter {
                             val result = async {
                                 try {
                                     val (info, response) = requestFunction()
-                                    response.call.body(info) as PRequest
+                                    info
                                 }catch (ex: Exception){
                                     e.onError(ex)
                                     null
@@ -57,7 +57,7 @@ class RxResponseConverter : ResponseConverter {
                             val result = async {
                                 try {
                                     val (info, response) = requestFunction()
-                                    response.call.body(info) as PRequest
+                                    info
                                 }catch (ex: Exception){
                                     e.onError(ex)
                                     null
