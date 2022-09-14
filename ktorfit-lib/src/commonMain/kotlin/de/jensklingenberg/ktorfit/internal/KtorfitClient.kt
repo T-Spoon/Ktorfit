@@ -12,7 +12,31 @@ import io.ktor.util.*
 import io.ktor.util.reflect.*
 import kotlin.reflect.KClass
 
-data class Type(val qualifiedName: String, val types :List<Type>)
+class MyType(val packageName: String,val isNullable: Boolean, val typeArgs : List<MyType> = emptyList())
+
+fun getti(text:String) : MyType{
+    var className = text.substringBefore("<","")
+    if(className.isEmpty()){
+        className = text.substringBefore(",","")
+    }
+    if(className.isEmpty()){
+        className = text
+    }
+    val type = (text.removePrefix(className)).substringAfter("<").substringBeforeLast(">")
+    var typo  = mutableListOf<MyType>()
+    if(type.contains("<")){
+        typo.add(getti(type))
+    } else if(type.contains(",")){
+        type.split(",").forEach {
+            typo.add(getti(it))
+        }
+    } else if(type.isNotEmpty()){
+        typo.add(getti(type))
+    }
+
+    return MyType(className,false, typo)
+}
+
 
 class TestConverterFactory : KConverter.Factory {
 
@@ -63,8 +87,9 @@ class KtorfitClient(val ktorfit: Ktorfit) {
     suspend inline fun <reified TReturn, reified PRequest : Any?> suspendRequest(
         requestData: RequestData
     ): TReturn? {
+       val ty = getti(requestData.qualifiedRawTypeName)
         val tt = typeInfo<TReturn>().type!!
-        println("HEY"+tt)
+        println("HEY"+ty)
 
 
         if (TReturn::class == HttpStatement::class) {
@@ -121,6 +146,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
     ): TReturn? {
         //val tt = typeInfo<TReturn>().upperBoundType()?.type!!
         //val ee = tt.cast("dd")
+        val ty = getti(requestData.qualifiedRawTypeName)
 
         ktorfit.requestConverters.firstOrNull { converter ->
             converter.supportedType(
