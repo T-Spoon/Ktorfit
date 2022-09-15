@@ -25,10 +25,13 @@ public class KtorfitProcessor(private val env: SymbolProcessorEnvironment) : Sym
     private val logger: KSPLogger = env.logger
     private var invoked = false
 
-    private lateinit var resolver: Resolver
+
+    companion object{
+        lateinit var rresolver: Resolver
+    }
 
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        this.resolver = resolver
+        rresolver = resolver
 
         if (invoked) {
             return emptyList()
@@ -66,14 +69,14 @@ public class KtorfitProcessor(private val env: SymbolProcessorEnvironment) : Sym
      * Returns a list of all [KSFunctionDeclaration] which are annotated with a Http Method Annotation
      */
     private fun getAnnotatedFunctions(): List<KSFunctionDeclaration> {
-        val getAnnotated = resolver.getSymbolsWithAnnotation(GET::class.java.name).toList()
-        val postAnnotated = resolver.getSymbolsWithAnnotation(POST::class.java.name).toList()
-        val putAnnotated = resolver.getSymbolsWithAnnotation(PUT::class.java.name).toList()
-        val deleteAnnotated = resolver.getSymbolsWithAnnotation(DELETE::class.java.name).toList()
-        val headAnnotated = resolver.getSymbolsWithAnnotation(HEAD::class.java.name).toList()
-        val optionsAnnotated = resolver.getSymbolsWithAnnotation(OPTIONS::class.java.name).toList()
-        val patchAnnotated = resolver.getSymbolsWithAnnotation(PATCH::class.java.name).toList()
-        val httpAnnotated = resolver.getSymbolsWithAnnotation(HTTP::class.java.name).toList()
+        val getAnnotated = KtorfitProcessor.rresolver.getSymbolsWithAnnotation(GET::class.java.name).toList()
+        val postAnnotated = KtorfitProcessor.rresolver.getSymbolsWithAnnotation(POST::class.java.name).toList()
+        val putAnnotated = KtorfitProcessor.rresolver.getSymbolsWithAnnotation(PUT::class.java.name).toList()
+        val deleteAnnotated = KtorfitProcessor.rresolver.getSymbolsWithAnnotation(DELETE::class.java.name).toList()
+        val headAnnotated = KtorfitProcessor.rresolver.getSymbolsWithAnnotation(HEAD::class.java.name).toList()
+        val optionsAnnotated = KtorfitProcessor.rresolver.getSymbolsWithAnnotation(OPTIONS::class.java.name).toList()
+        val patchAnnotated = KtorfitProcessor.rresolver.getSymbolsWithAnnotation(PATCH::class.java.name).toList()
+        val httpAnnotated = KtorfitProcessor.rresolver.getSymbolsWithAnnotation(HTTP::class.java.name).toList()
 
         val ksAnnotatedList =
             getAnnotated + postAnnotated + putAnnotated + deleteAnnotated + headAnnotated + optionsAnnotated + patchAnnotated + httpAnnotated

@@ -2,42 +2,32 @@ package de.jensklingenberg.ktorfit.converter.builtin
 
 import de.jensklingenberg.ktorfit.Call
 import de.jensklingenberg.ktorfit.Callback
-import de.jensklingenberg.ktorfit.Ktorfit
-import de.jensklingenberg.ktorfit.converter.RequestConverter
 import de.jensklingenberg.ktorfit.converter.ResponseConverter
+import de.jensklingenberg.ktorfit.internal.MyType
 import io.ktor.client.statement.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 
 /**
  * Converter to enable the use of Call<> as return type
  * e.g. fun test(): Call<String>
  */
-class KtorfitCallResponseConverter :  ResponseConverter {
+class KtorfitCallResponseConverter : ResponseConverter {
 
-    override fun <PRequest> convertResponse(
-        returnTypeName: String,
-        data: PRequest,
-        httpResponse: HttpResponse,
-        ktorfit: Ktorfit
-    ): Any {
 
-        return object : Call<PRequest> {
-            override fun onExecute(callBack: Callback<PRequest>) {
+    override fun supportedType(returnTypeName: MyType): Boolean {
+        return returnTypeName.packageName == "de.jensklingenberg.ktorfit.Call"
+    }
+
+    override suspend fun convert(httpResponse: HttpResponse, data: Any?): Call<Any> {
+        return object : Call<Any> {
+            override fun onExecute(callBack: Callback<Any>) {
                 try {
-                    callBack.onResponse(data, httpResponse)
+                    callBack.onResponse(data!!, httpResponse)
                 } catch (ex: Throwable) {
                     callBack.onError(ex)
                 }
             }
         }
     }
-
-    override fun supportedType(returnTypeName: String, isSuspend: Boolean): Boolean {
-        return returnTypeName == "de.jensklingenberg.ktorfit.Call"
-    }
-
 
 
 }

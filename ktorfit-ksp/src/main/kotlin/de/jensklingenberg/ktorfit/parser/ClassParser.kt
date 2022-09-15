@@ -38,6 +38,8 @@ private fun getImports(ksClassDeclaration: KSClassDeclaration): List<String> {
     importList.add("de.jensklingenberg.ktorfit.internal.HeaderData")
     importList.add("de.jensklingenberg.ktorfit.internal.FieldData")
     importList.add("de.jensklingenberg.ktorfit.internal.FieldType")
+    importList.add("de.jensklingenberg.ktorfit.internal.MyType")
+
     importList.add(pathDataClass.packageName+"."+ pathDataClass.name)
 
     return importList.map { it.removePrefix("import ") }
@@ -45,13 +47,14 @@ private fun getImports(ksClassDeclaration: KSClassDeclaration): List<String> {
 
 fun toClassData(ksClassDeclaration: KSClassDeclaration, logger: KSPLogger): ClassData {
 
-    val functionDataList: List<FunctionData> =
-        getFunctionDataList(ksClassDeclaration.getDeclaredFunctions().toList(), logger)
+
 
     val imports = getImports(ksClassDeclaration)
     val packageName = ksClassDeclaration.packageName.asString()
     val className = ksClassDeclaration.simpleName.asString()
 
+    val functionDataList: List<FunctionData> =
+        getFunctionDataList(ksClassDeclaration.getDeclaredFunctions().toList(), logger,imports,packageName)
     val supertypes =
         ksClassDeclaration.superTypes.toList().filterNot {
             /** In KSP Any is a supertype of an interface */

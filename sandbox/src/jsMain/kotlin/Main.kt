@@ -1,5 +1,6 @@
 
 
+import com.example.model.Post
 import com.example.model.jsonPlaceHolderApi
 import de.jensklingenberg.ktorfit.Callback
 import io.ktor.client.statement.*
@@ -12,14 +13,14 @@ import kotlinx.coroutines.launch
 fun main() {
 
 
-    jsonPlaceHolderApi.callPosts().onExecute(object :Callback<String>{
-        override fun onResponse(call: String, response: HttpResponse) {
-           // println("onResponse"+ call)
+    jsonPlaceHolderApi.callPosts().onExecute(object :Callback<List<Post>>{
+        override fun onResponse(call: List<Post>, response: HttpResponse) {
+            println("onResponse"+ call)
 
         }
 
         override fun onError(exception: Throwable) {
-            //println("onError"+ exception)
+            println("onError"+ exception)
         }
 
     })

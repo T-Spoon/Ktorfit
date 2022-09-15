@@ -1,5 +1,7 @@
 package de.jensklingenberg.ktorfit.parser
 
+import KtorfitProcessor
+import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import de.jensklingenberg.ktorfit.model.FunctionData
@@ -43,19 +45,108 @@ fun getHttpMethodAnnotations(func: KSFunctionDeclaration): List<HttpMethodAnnota
     return listOfNotNull(getAnno, postAnno, putAnno, deleteAnno, headAnno, optionsAnno, patchAnno, httpAnno)
 }
 
+data class MyType(val qualifiedName: String, val typeArgs: List<MyType> = emptyList()){
+    override fun toString(): String {
+        var qua = qualifiedName
+       val args = typeArgs.joinToString() { it.toString() }
+        val args2 = if(args.isNotEmpty()){
+
+            "listOf($args)"
+        }else {
+            ""
+        }
+        return """MyType("$qua",$args2)"""
+    }
+}
+
+//https://kotlinlang.org/docs/packages.html
+fun defaultImports() = listOf(
+    "kotlin.*",
+    "kotlin.annotation.*",
+    "kotlin.collections.*",
+    "kotlin.comparisons.*",
+    "kotlin.io.*",
+    "kotlin.ranges.*",
+    "kotlin.sequences.*",
+    "kotlin.text.*"
+)
+
+fun getMyType(text: String, imports: List<String>, packageName: String): MyType {
+    val classImports = imports + defaultImports()
+    var className = text.substringBefore("<", "")
+    if (className.isEmpty()) {
+        className = text.substringBefore(",", "")
+    }
+    if (className.isEmpty()) {
+        className = text
+    }
+    val type = (text.removePrefix(className)).substringAfter("<").substringBeforeLast(">")
+    val argumentsTypes = mutableListOf<MyType>()
+    if (type.contains("<")) {
+        argumentsTypes.add(getMyType(type, classImports, packageName))
+    } else if (type.contains(",")) {
+        type.split(",").forEach {
+            argumentsTypes.add(getMyType(it, classImports, packageName))
+        }
+    } else if (type.isNotEmpty()) {
+        argumentsTypes.add(getMyType(type, classImports, packageName))
+    }
+
+
+    //Look in package
+    val found =
+        KtorfitProcessor.rresolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()
+    found?.let {
+        className = it
+    }
+
+    //Look in imports
+
+
+    //Wildcards
+    val isWildCard = className == "*"
+    if(!isWildCard){
+        classImports.forEach {
+            if (it.substringAfterLast(".") == className) {
+                className = it
+            }
+
+            val packageName = it.substringBeforeLast(".")
+            val found2 =
+                KtorfitProcessor.rresolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()
+            found2?.let {
+                className = it
+            }
+        }
+    }
+
+
+    return MyType(className,  argumentsTypes)
+}
+
 fun getFunctionDataList(
     ksFunctionDeclarationList: List<KSFunctionDeclaration>,
-    logger: KSPLogger
+    logger: KSPLogger,
+    imports: List<String>,
+    packageName: String
 ): List<FunctionData> {
 
     return ksFunctionDeclarationList.map { funcDeclaration ->
 
         val functionName = funcDeclaration.simpleName.asString()
         val functionParameters = funcDeclaration.parameters.map { getParameterData(it, logger) }
+        KtorfitProcessor.rresolver
+        val unqualified = getMyType(
+            funcDeclaration.returnType?.resolve().resolveTypeName().replace("\\s".toRegex(), ""),
+            imports,
+            packageName
+        )
+//unqualified.toString().replace("typeArgs=[","listOf<MyType>(").replace("]","").replace(", listOf","\", listOf").replace("qualifiedName=","\"")
+       logger.info(unqualified.toString())
 
         val returnType = TypeData(
             funcDeclaration.returnType?.resolve().resolveTypeName(),
-            funcDeclaration.returnType?.resolve()?.declaration?.qualifiedName?.asString() ?: ""
+            unqualified.toString()
         )
 
         val functionAnnotationList = mutableListOf<FunctionAnnotation>()
@@ -74,8 +165,8 @@ fun getFunctionDataList(
 
                     try {
                         val (key, value) = it.split(":")
-                    }catch (exception:Exception){
-                        logger.ktorfitError(HEADERS_VALUE_MUST_BE_IN_FORM+it,funcDeclaration)
+                    } catch (exception: Exception) {
+                        logger.ktorfitError(HEADERS_VALUE_MUST_BE_IN_FORM + it, funcDeclaration)
                     }
                 }
                 functionAnnotationList.add(headers)

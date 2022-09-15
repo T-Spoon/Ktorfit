@@ -4,7 +4,7 @@ import de.jensklingenberg.ktorfit.Call
 import de.jensklingenberg.ktorfit.Callback
 import de.jensklingenberg.ktorfit.Ktorfit
 import de.jensklingenberg.ktorfit.converter.RequestConverter
-import de.jensklingenberg.ktorfit.converter.ResponseConverter
+import de.jensklingenberg.ktorfit.internal.MyType
 import io.ktor.client.statement.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
@@ -16,12 +16,13 @@ import kotlinx.coroutines.launch
  */
 class KtorfitCallRequestConverter : RequestConverter{
 
-    override fun supportedType(returnTypeName: String, isSuspend: Boolean): Boolean {
-        return returnTypeName == "de.jensklingenberg.ktorfit.Call"
+
+    override fun supportedType(returnTypeName: MyType): Boolean {
+        return returnTypeName.packageName == "de.jensklingenberg.ktorfit.Call"
     }
 
-    override fun <PRequest> convertResponse(
-        returnTypeName: String,
+    override fun <PRequest> convertRequest(
+        returnType: MyType,
         requestFunction: suspend () -> Pair<PRequest, HttpResponse>,
         ktorfit: Ktorfit
     ): Any {
@@ -30,8 +31,6 @@ class KtorfitCallRequestConverter : RequestConverter{
 
                 GlobalScope.launch {
                     val deferredResponse = async { requestFunction() }
-
-
 
                     try {
                         val (data, response) = deferredResponse.await()

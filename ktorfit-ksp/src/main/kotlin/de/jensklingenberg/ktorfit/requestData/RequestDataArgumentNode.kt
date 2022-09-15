@@ -26,7 +26,7 @@ fun getRequestDataArgumentText(functionData: FunctionData): String {
     }else{
         ""
     }
-    val qualifiedTypeName = "qualifiedRawTypeName=\"${functionData.returnType.qualifiedName}$nullable<kotlin.String>\""
+    val qualifiedTypeName = "qualifiedRawTypeName=${functionData.returnType.qualifiedName}"
 
     val args = listOf(
         method,
