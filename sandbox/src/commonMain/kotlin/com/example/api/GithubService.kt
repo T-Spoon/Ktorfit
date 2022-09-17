@@ -22,7 +22,6 @@ interface GithubService {
     suspend fun createIssue(@Body body: Issuedata, @Header("Acci") headi: String?): String
 
     @POST("repos/foso/experimental/issues")
-
     suspend fun createIssue2(@Body body: Issuedata, @Header("Acci") headi: String?): Call<Map<String?, Int>>
 
 

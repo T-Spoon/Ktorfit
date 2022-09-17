@@ -3,7 +3,7 @@ package de.jensklingenberg.ktorfit.converter.builtin
 import de.jensklingenberg.ktorfit.Call
 import de.jensklingenberg.ktorfit.Callback
 import de.jensklingenberg.ktorfit.converter.ResponseConverter
-import de.jensklingenberg.ktorfit.internal.MyType
+import de.jensklingenberg.ktorfit.internal.TypeData
 import io.ktor.client.statement.*
 
 /**
@@ -13,7 +13,7 @@ import io.ktor.client.statement.*
 class KtorfitCallResponseConverter : ResponseConverter {
 
 
-    override fun supportedType(returnTypeName: MyType): Boolean {
+    override fun supportedType(returnTypeName: TypeData): Boolean {
         return returnTypeName.packageName == "de.jensklingenberg.ktorfit.Call"
     }
 

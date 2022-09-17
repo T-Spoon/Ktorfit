@@ -1,6 +1,6 @@
 package de.jensklingenberg.ktorfit.converter
 
-import de.jensklingenberg.ktorfit.internal.MyType
+import de.jensklingenberg.ktorfit.internal.TypeData
 
 sealed interface CoreResponseConverter {
 
@@ -11,7 +11,7 @@ sealed interface CoreResponseConverter {
      * @param isSuspend specifies if the check happens on a suspend function or not
      * @return if type is supported
      */
-    fun supportedType(returnTypeName: MyType): Boolean
+    fun supportedType(returnTypeName: TypeData): Boolean
 
 }
 

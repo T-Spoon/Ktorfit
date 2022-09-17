@@ -5,7 +5,7 @@ import io.ktor.client.call.*
 import io.ktor.client.statement.*
 
 class TestConverter : ResponseConverter {
-    override fun supportedType(returnTypeName: MyType): Boolean {
+    override fun supportedType(returnTypeName: TypeData): Boolean {
         return returnTypeName.packageName == "kotlin.String"
     }
 

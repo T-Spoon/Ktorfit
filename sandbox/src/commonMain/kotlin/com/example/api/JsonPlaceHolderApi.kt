@@ -4,6 +4,7 @@ import com.example.model.Comment
 import com.example.model.People
 import com.example.model.Post
 import de.jensklingenberg.ktorfit.Call
+import de.jensklingenberg.ktorfit.converter.builtin.Response
 import de.jensklingenberg.ktorfit.http.Body
 import de.jensklingenberg.ktorfit.http.DELETE
 import de.jensklingenberg.ktorfit.http.GET
@@ -16,6 +17,7 @@ import de.jensklingenberg.ktorfit.http.QueryMap
 import de.jensklingenberg.ktorfit.http.QueryName
 import de.jensklingenberg.ktorfit.http.Streaming
 import io.ktor.client.statement.*
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 
 interface JsonPlaceHolderApi {
@@ -43,8 +45,13 @@ interface JsonPlaceHolderApi {
     @GET("posts/{postId}/comments")
     fun getCommentsByPostId(@Path("postId") postId: Int): Flow<List<Comment>>?
 
+    @Headers(value = ["Content-Type: application/json"])
     @GET("posts/{postId}/comments")
     suspend fun callCommentsByPostId(@Path("postId") postId: Int): Call<List<Comment>>
+
+    @Headers(value = ["Content-Type: application/json"])
+    @GET("posts/{postId}/comments")
+    fun deferedCommentsByPostId(@Path("postId") postId: Int): Deferred<List<Comment>>
 
     @Headers(value = ["Content-Type: application/json"])
     @GET("comments")

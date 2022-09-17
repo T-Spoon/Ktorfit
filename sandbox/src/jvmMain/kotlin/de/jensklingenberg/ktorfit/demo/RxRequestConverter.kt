@@ -2,9 +2,8 @@ package de.jensklingenberg.ktorfit.demo
 
 import de.jensklingenberg.ktorfit.Ktorfit
 import de.jensklingenberg.ktorfit.converter.RequestConverter
-import de.jensklingenberg.ktorfit.internal.MyType
+import de.jensklingenberg.ktorfit.internal.TypeData
 import io.ktor.client.statement.*
-import io.ktor.util.reflect.*
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
@@ -14,18 +13,28 @@ import kotlinx.coroutines.launch
 
 class RxRequestConverter : RequestConverter {
 
-    override fun supportedType(returnTypeName: MyType): Boolean {
+    override fun supportedType(returnTypeName: TypeData): Boolean {
         return listOf("io.reactivex.rxjava3.core.Single", "io.reactivex.rxjava3.core.Observable","io.reactivex.rxjava3.core.Completable").contains(
             returnTypeName.packageName
         )
     }
 
+    fun test(vava : suspend RxRequestConverter.()->Unit){
+
+    }
+
+    inline suspend fun <reified T> RxRequestConverter.hey(){
+
+    }
     override fun <PRequest> convertRequest(
-        returnTypeName: MyType,
+        returnTypeName: TypeData,
         requestFunction: suspend () -> Pair<PRequest, HttpResponse>,
         ktorfit: Ktorfit
     ): Any {
 
+        test {
+            hey<String>()
+        }
         return when (returnTypeName.packageName) {
             "io.reactivex.rxjava3.core.Single" -> {
                 Single.create<PRequest> { e ->

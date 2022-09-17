@@ -2,7 +2,13 @@ package de.jensklingenberg.ktorfit.internal
 
 import de.jensklingenberg.ktorfit.converter.ResponseConverter
 import de.jensklingenberg.ktorfit.Ktorfit
+import de.jensklingenberg.ktorfit.converter.MyMy
+import de.jensklingenberg.ktorfit.converter.builtin.CallPlugin
+
+import de.jensklingenberg.ktorfit.converter.builtin.MyPlugin2
+import de.jensklingenberg.ktorfit.upperBoundType
 import io.ktor.client.call.*
+import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
@@ -12,9 +18,9 @@ import io.ktor.util.*
 import io.ktor.util.reflect.*
 import kotlin.reflect.KClass
 
-class MyType(val packageName: String, val typeArgs: List<MyType> = emptyList())
+class TypeData(val packageName: String, val typeArgs: List<TypeData> = emptyList())
 
-fun getti(text: String): MyType {
+fun getti(text: String): TypeData {
     var className = text.substringBefore("<", "")
     if (className.isEmpty()) {
         className = text.substringBefore(",", "")
@@ -23,7 +29,7 @@ fun getti(text: String): MyType {
         className = text
     }
     val type = (text.removePrefix(className)).substringAfter("<").substringBeforeLast(">")
-    var typo = mutableListOf<MyType>()
+    var typo = mutableListOf<TypeData>()
     if (type.contains("<")) {
         typo.add(getti(type))
     } else if (type.contains(",")) {
@@ -34,15 +40,9 @@ fun getti(text: String): MyType {
         typo.add(getti(type))
     }
 
-    return MyType(className, typo)
+    return TypeData(className, typo)
 }
 
-
-class Person<T : Any>(val clazz: KClass<T>)
-
-inline fun <reified T : Any> Person(): Person<T> {
-    return Person(T::class)
-}
 
 /**
  * This class will be used by the generated Code
@@ -62,7 +62,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
 
     fun findConverter(
         kResponseConverter: Set<ResponseConverter>,
-        qualifiedRawTypeName: MyType,
+        qualifiedRawTypeName: TypeData,
         ktorfit: Ktorfit
     ): ResponseConverter? {
         return kResponseConverter.firstOrNull() { it.supportedType(qualifiedRawTypeName) }
@@ -77,10 +77,38 @@ class KtorfitClient(val ktorfit: Ktorfit) {
     suspend inline fun <reified TReturn, reified PRequest : Any?> suspendRequest(
         requestData: RequestData
     ): TReturn? {
-        //val ty = getti(requestData.qualifiedRawTypeName)
-        val tt = typeInfo<TReturn>().type!!
-        // println("HEY"+ty)
+        val my = mutableListOf<MyMy>()
 
+
+        val tt = typeInfo<TReturn>().type!!
+
+        httpClient.config {
+            install(CallPlugin())
+        }
+        val test = httpClient.pluginOrNull(CallPlugin())
+
+        with(httpClient){
+            this.config {
+
+            }
+        }
+
+        httpClient.config {
+
+            install("ddd") {
+                this.responsePipeline.intercept(HttpResponsePipeline.Receive) { (info, body) ->
+                    val result =
+                        HttpResponseContainer(info, body)
+
+
+
+                    proceedWith(result)
+                }
+
+            }
+
+
+        }
 
         if (TReturn::class == HttpStatement::class) {
             return httpClient.prepareRequest {
@@ -89,10 +117,23 @@ class KtorfitClient(val ktorfit: Ktorfit) {
         }
 
 
-        val response = httpClient.request {
-            requestBuilder(requestData)
+        val response = try {
+            httpClient.request {
+                requestBuilder(requestData)
+            }
+        } catch (ex: Exception) {
+
+            val typeIsNullable = requestData.qualifiedRawTypeName.packageName.endsWith("?")
+            return if (typeIsNullable) {
+                null
+            } else {
+                throw ex
+            }
         }
 
+        if (TReturn::class == HttpResponse::class) {
+            return response as TReturn
+        }
 
 
         val outerConverter = findConverter(ktorfit.kResponseConverter, requestData.qualifiedRawTypeName, ktorfit)
@@ -102,9 +143,9 @@ class KtorfitClient(val ktorfit: Ktorfit) {
         val innerConverter = findConverter(ktorfit.kResponseConverter, next, ktorfit)
 
 
-        val a1 = innerConverter?.convert(response) ?: response.body<PRequest>()
+        //    val a1 = innerConverter?.convert(response) ?: response.body<TReturn>()
 
-        return outerConverter?.convert(response, a1) as TReturn
+        return response.body<TReturn>()
         if (innerConverter == null) {
             ktorfit.kResponseConverter.firstOrNull { it.supportedType(next) }
         }
@@ -148,7 +189,10 @@ class KtorfitClient(val ktorfit: Ktorfit) {
     inline fun <reified TReturn, reified PRequest : Any?> request(
         requestData: RequestData
     ): TReturn? {
+        httpClient.config {
+            install(MyPlugin2("no2"))
 
+        }
         val reqConv = ktorfit.requestConverters.firstOrNull { converter ->
             converter.supportedType(
                 requestData.qualifiedRawTypeName
@@ -156,8 +200,8 @@ class KtorfitClient(val ktorfit: Ktorfit) {
         }
 
         reqConv?.let { requetConv ->
-            return requetConv.convertRequest<PRequest?>(
-                returnType = requestData.qualifiedRawTypeName,
+            return requetConv.convertRequest<TReturn>(
+                typeData = requestData.qualifiedRawTypeName,
                 requestFunction = {
 
                     val response = httpClient.request {
@@ -173,7 +217,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
                         val gg = it.convert(
                             response,
                             ktorfit
-                        ) as PRequest
+                        ) as TReturn
                         Pair(gg, response)
                     } ?: Pair(
                         response.body(),
@@ -190,7 +234,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
         return if (typeIsNullable) {
             null
         } else {
-            throw IllegalArgumentException("Add a ResponseConverter for " + requestData.qualifiedRawTypeName + " or make function suspend")
+            throw IllegalArgumentException("Add a ResponseConverter for " + requestData.qualifiedRawTypeName.packageName + " or make function suspend")
 
         }
 

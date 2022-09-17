@@ -1,9 +1,8 @@
 package de.jensklingenberg.ktorfit.converter.builtin
 
-import de.jensklingenberg.ktorfit.converter.ResponseConverter
 import de.jensklingenberg.ktorfit.Ktorfit
 import de.jensklingenberg.ktorfit.converter.RequestConverter
-import de.jensklingenberg.ktorfit.internal.MyType
+import de.jensklingenberg.ktorfit.internal.TypeData
 import io.ktor.client.statement.*
 import kotlinx.coroutines.flow.flow
 
@@ -12,12 +11,12 @@ import kotlinx.coroutines.flow.flow
  */
 class FlowRequestConverter : RequestConverter {
 
-    override fun supportedType(returnTypeName: MyType): Boolean {
+    override fun supportedType(returnTypeName: TypeData): Boolean {
         return returnTypeName.packageName == "kotlinx.coroutines.flow.Flow"
     }
 
     override fun <PRequest> convertRequest(
-        returnType: MyType,
+        typeData: TypeData,
         requestFunction: suspend () -> Pair<PRequest, HttpResponse>,
         ktorfit: Ktorfit
     ): Any {

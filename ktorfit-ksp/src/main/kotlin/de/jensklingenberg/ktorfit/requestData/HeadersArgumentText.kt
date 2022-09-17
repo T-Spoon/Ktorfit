@@ -36,7 +36,7 @@ fun getHeadersArgumentText(
     headersAnno?.path?.forEach {
             val (key, value) = it.split(":")
 
-            headerList.add(Pair(key.surroundWith("\""), value.surroundWith("\"")))
+            headerList.add(Pair(key.surroundWith("\""), value.trim().surroundWith("\"")))
 
     }
 

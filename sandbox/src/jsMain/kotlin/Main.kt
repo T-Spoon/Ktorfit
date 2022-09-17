@@ -15,12 +15,12 @@ fun main() {
 
     jsonPlaceHolderApi.callPosts().onExecute(object :Callback<List<Post>>{
         override fun onResponse(call: List<Post>, response: HttpResponse) {
-            println("onResponse"+ call)
+           // println("onResponse"+ call)
 
         }
 
         override fun onError(exception: Throwable) {
-            println("onError"+ exception)
+           // println("onError"+ exception)
         }
 
     })

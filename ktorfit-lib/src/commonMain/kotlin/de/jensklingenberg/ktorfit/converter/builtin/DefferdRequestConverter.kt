@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
  * Converter to enable the use of Call<> as return type
  * e.g. fun test(): Call<String>
  */
-class KtorfitCallRequestConverter : RequestConverter{
+class DefferdRequestConverter : RequestConverter {
 
 
     override fun supportedType(returnTypeName: TypeData): Boolean {
@@ -26,10 +26,13 @@ class KtorfitCallRequestConverter : RequestConverter{
         requestFunction: suspend () -> Pair<PRequest, HttpResponse>,
         ktorfit: Ktorfit
     ): Any {
+
+
+
         return object : Call<PRequest> {
             override fun onExecute(callBack: Callback<PRequest>) {
 
-                ktorfit.httpClient.launch {
+                GlobalScope.launch {
                     val deferredResponse = async { requestFunction() }
 
                     try {
@@ -46,7 +49,3 @@ class KtorfitCallRequestConverter : RequestConverter{
     }
 
 }
-
-
-@Deprecated("Use KtorfitCallResponseConverter instead", ReplaceWith("KtorfitCallResponseConverter"))
-typealias KtorfitSuspendCallResponseConverter = KtorfitCallRequestConverter

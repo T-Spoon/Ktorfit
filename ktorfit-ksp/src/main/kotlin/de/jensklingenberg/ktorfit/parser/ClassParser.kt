@@ -31,16 +31,11 @@ private fun getImports(ksClassDeclaration: KSClassDeclaration): List<String> {
             .toMutableSet()
 
     importList.add(ktorfitClass.packageName + "." + ktorfitClass.name)
-    importList.add(clientClass.packageName + "." + clientClass.name)
-    importList.add(requestDataClass.packageName + "." + requestDataClass.name)
-    importList.add("de.jensklingenberg.ktorfit.internal.QueryData")
-    importList.add("de.jensklingenberg.ktorfit.internal.QueryType")
-    importList.add("de.jensklingenberg.ktorfit.internal.HeaderData")
-    importList.add("de.jensklingenberg.ktorfit.internal.FieldData")
-    importList.add("de.jensklingenberg.ktorfit.internal.FieldType")
-    importList.add("de.jensklingenberg.ktorfit.internal.MyType")
+   // importList.add(clientClass.packageName + "." + clientClass.name)
+    importList.add("de.jensklingenberg.ktorfit.internal.*")
 
-    importList.add(pathDataClass.packageName+"."+ pathDataClass.name)
+
+   // importList.add(pathDataClass.packageName+"."+ pathDataClass.name)
 
     return importList.map { it.removePrefix("import ") }
 }

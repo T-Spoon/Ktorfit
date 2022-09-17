@@ -55,7 +55,7 @@ data class MyType(val qualifiedName: String, val typeArgs: List<MyType> = emptyL
         }else {
             ""
         }
-        return """MyType("$qua",$args2)"""
+        return """TypeData("$qua",$args2)"""
     }
 }
 
