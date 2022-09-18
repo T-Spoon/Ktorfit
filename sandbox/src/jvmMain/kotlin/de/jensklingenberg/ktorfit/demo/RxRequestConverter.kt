@@ -3,11 +3,12 @@ package de.jensklingenberg.ktorfit.demo
 import de.jensklingenberg.ktorfit.Ktorfit
 import de.jensklingenberg.ktorfit.converter.RequestConverter
 import de.jensklingenberg.ktorfit.internal.TypeData
+import io.ktor.client.call.*
 import io.ktor.client.statement.*
+import io.ktor.util.reflect.*
 import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.Single
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
@@ -15,36 +16,25 @@ class RxRequestConverter : RequestConverter {
 
     override fun supportedType(returnTypeName: TypeData): Boolean {
         return listOf("io.reactivex.rxjava3.core.Single", "io.reactivex.rxjava3.core.Observable","io.reactivex.rxjava3.core.Completable").contains(
-            returnTypeName.packageName
+            returnTypeName.qualifiedName
         )
     }
 
-    fun test(vava : suspend RxRequestConverter.()->Unit){
-
-    }
-
-    inline suspend fun <reified T> RxRequestConverter.hey(){
-
-    }
-    override fun <PRequest> convertRequest(
-        returnTypeName: TypeData,
-        requestFunction: suspend () -> Pair<PRequest, HttpResponse>,
+    override fun <RequestType> convertRequest(
+        typeData: TypeData,
+        requestFunction: suspend () -> Pair<TypeInfo, HttpResponse?>,
         ktorfit: Ktorfit
     ): Any {
-
-        test {
-            hey<String>()
-        }
-        return when (returnTypeName.packageName) {
+        return when (typeData.qualifiedName) {
             "io.reactivex.rxjava3.core.Single" -> {
-                Single.create<PRequest> { e ->
+                Single.create<RequestType> { e ->
 
                     try {
-                        GlobalScope.launch {
+                        ktorfit.httpClient.launch {
                             val result = async {
                                 try {
                                     val (info, response) = requestFunction()
-                                    info
+                                    response!!.body(info) as RequestType
                                 }catch (ex: Exception){
                                     e.onError(ex)
                                     null
@@ -53,21 +43,20 @@ class RxRequestConverter : RequestConverter {
                             val success = result.await()
                             success?.let { e.onSuccess(it) }
                         }
-                    } catch (ex: NumberFormatException) {
-                        println("dfsdfsdfsdfds")
+                    } catch (ex: Exception) {
                         e.onError(ex)
                     }
 
                 }
             }
             "io.reactivex.rxjava3.core.Observable" -> {
-                Observable.create<PRequest> { e ->
+                Observable.create<RequestType> { e ->
                     try {
-                        GlobalScope.launch {
+                        ktorfit.httpClient.launch {
                             val result = async {
                                 try {
                                     val (info, response) = requestFunction()
-                                    info
+                                    response!!.body(info) as RequestType
                                 }catch (ex: Exception){
                                     e.onError(ex)
                                     null
@@ -79,8 +68,7 @@ class RxRequestConverter : RequestConverter {
                                 e.onComplete()
                             }
                         }
-                    } catch (ex: NumberFormatException) {
-                        println("dfsdfsdfsdfds")
+                    } catch (ex: Exception) {
                         e.onError(ex)
                     }
                 }
@@ -89,11 +77,11 @@ class RxRequestConverter : RequestConverter {
             "io.reactivex.rxjava3.core.Completable" -> {
                 Completable.create { e ->
                     try {
-                        GlobalScope.launch {
+                        ktorfit.httpClient.launch {
                             val result = async {
                                 try {
                                     val (info, response) = requestFunction()
-                                    response
+                                    response!!.body(info) as RequestType
                                 }catch (ex: Exception){
                                     e.onError(ex)
                                     null
@@ -104,7 +92,7 @@ class RxRequestConverter : RequestConverter {
                                 e.onComplete()
                             }
                         }
-                    } catch (ex: NumberFormatException) {
+                    } catch (ex: Exception) {
                         e.onError(ex)
                     }
                 }

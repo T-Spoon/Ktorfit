@@ -1,17 +1,15 @@
 package de.jensklingenberg.ktorfit.parser
 
-import KtorfitProcessor
-import com.google.devtools.ksp.getClassDeclarationByName
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import de.jensklingenberg.ktorfit.model.FunctionData
 import de.jensklingenberg.ktorfit.model.KtorfitError
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.BODY_PARAMETERS_CANNOT_BE_USED_WITH_FORM_OR_MULTI_PART_ENCODING
-import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.HEADERS_VALUE_MUST_BE_IN_FORM
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.FIELD_MAP_PARAMETERS_CAN_ONLY_BE_USED_WITH_FORM_ENCODING
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.FIELD_PARAMETERS_CAN_ONLY_BE_USED_WITH_FORM_ENCODING
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.FORM_URL_ENCODED_CAN_ONLY_BE_SPECIFIED_ON_HTTP_METHODS_WITH_REQUEST_BODY
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.FOR_STREAMING_THE_RETURN_TYPE_MUST_BE_HTTP_STATEMENT
+import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.HEADERS_VALUE_MUST_BE_IN_FORM
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.MISSING_EITHER_KEYWORD_URL_OrURL_PARAMETER
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.MISSING_X_IN_RELATIVE_URL_PATH
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.MULTIPART_CAN_ONLY_BE_SPECIFIED_ON_HTTPMETHODS
@@ -32,96 +30,17 @@ import de.jensklingenberg.ktorfit.utils.*
  * Collect all [HttpMethodAnnotation] from a [KSFunctionDeclaration]
  * @return list of [HttpMethodAnnotation]
  */
-fun getHttpMethodAnnotations(func: KSFunctionDeclaration): List<HttpMethodAnnotation> {
-    val getAnno = func.parseHTTPMethodAnno("GET")
-    val putAnno = func.parseHTTPMethodAnno("PUT")
-    val postAnno = func.parseHTTPMethodAnno("POST")
-    val deleteAnno = func.parseHTTPMethodAnno("DELETE")
-    val headAnno = func.parseHTTPMethodAnno("HEAD")
-    val optionsAnno = func.parseHTTPMethodAnno("OPTIONS")
-    val patchAnno = func.parseHTTPMethodAnno("PATCH")
-    val httpAnno = func.parseHTTPMethodAnno("HTTP")
+fun getHttpMethodAnnotations(ksFunctionDeclaration: KSFunctionDeclaration): List<HttpMethodAnnotation> {
+    val getAnno = ksFunctionDeclaration.parseHTTPMethodAnno("GET")
+    val putAnno = ksFunctionDeclaration.parseHTTPMethodAnno("PUT")
+    val postAnno = ksFunctionDeclaration.parseHTTPMethodAnno("POST")
+    val deleteAnno = ksFunctionDeclaration.parseHTTPMethodAnno("DELETE")
+    val headAnno = ksFunctionDeclaration.parseHTTPMethodAnno("HEAD")
+    val optionsAnno = ksFunctionDeclaration.parseHTTPMethodAnno("OPTIONS")
+    val patchAnno = ksFunctionDeclaration.parseHTTPMethodAnno("PATCH")
+    val httpAnno = ksFunctionDeclaration.parseHTTPMethodAnno("HTTP")
 
     return listOfNotNull(getAnno, postAnno, putAnno, deleteAnno, headAnno, optionsAnno, patchAnno, httpAnno)
-}
-
-data class MyType(val qualifiedName: String, val typeArgs: List<MyType> = emptyList()){
-    override fun toString(): String {
-        var qua = qualifiedName
-       val args = typeArgs.joinToString() { it.toString() }
-        val args2 = if(args.isNotEmpty()){
-
-            "listOf($args)"
-        }else {
-            ""
-        }
-        return """TypeData("$qua",$args2)"""
-    }
-}
-
-//https://kotlinlang.org/docs/packages.html
-fun defaultImports() = listOf(
-    "kotlin.*",
-    "kotlin.annotation.*",
-    "kotlin.collections.*",
-    "kotlin.comparisons.*",
-    "kotlin.io.*",
-    "kotlin.ranges.*",
-    "kotlin.sequences.*",
-    "kotlin.text.*"
-)
-
-fun getMyType(text: String, imports: List<String>, packageName: String): MyType {
-    val classImports = imports + defaultImports()
-    var className = text.substringBefore("<", "")
-    if (className.isEmpty()) {
-        className = text.substringBefore(",", "")
-    }
-    if (className.isEmpty()) {
-        className = text
-    }
-    val type = (text.removePrefix(className)).substringAfter("<").substringBeforeLast(">")
-    val argumentsTypes = mutableListOf<MyType>()
-    if (type.contains("<")) {
-        argumentsTypes.add(getMyType(type, classImports, packageName))
-    } else if (type.contains(",")) {
-        type.split(",").forEach {
-            argumentsTypes.add(getMyType(it, classImports, packageName))
-        }
-    } else if (type.isNotEmpty()) {
-        argumentsTypes.add(getMyType(type, classImports, packageName))
-    }
-
-
-    //Look in package
-    val found =
-        KtorfitProcessor.rresolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()
-    found?.let {
-        className = it
-    }
-
-    //Look in imports
-
-
-    //Wildcards
-    val isWildCard = className == "*"
-    if(!isWildCard){
-        classImports.forEach {
-            if (it.substringAfterLast(".") == className) {
-                className = it
-            }
-
-            val packageName = it.substringBeforeLast(".")
-            val found2 =
-                KtorfitProcessor.rresolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()
-            found2?.let {
-                className = it
-            }
-        }
-    }
-
-
-    return MyType(className,  argumentsTypes)
 }
 
 fun getFunctionDataList(
@@ -135,14 +54,12 @@ fun getFunctionDataList(
 
         val functionName = funcDeclaration.simpleName.asString()
         val functionParameters = funcDeclaration.parameters.map { getParameterData(it, logger) }
-        KtorfitProcessor.rresolver
+
         val unqualified = getMyType(
             funcDeclaration.returnType?.resolve().resolveTypeName().replace("\\s".toRegex(), ""),
             imports,
             packageName
         )
-//unqualified.toString().replace("typeArgs=[","listOf<MyType>(").replace("]","").replace(", listOf","\", listOf").replace("qualifiedName=","\"")
-       logger.info(unqualified.toString())
 
         val returnType = TypeData(
             funcDeclaration.returnType?.resolve().resolveTypeName(),

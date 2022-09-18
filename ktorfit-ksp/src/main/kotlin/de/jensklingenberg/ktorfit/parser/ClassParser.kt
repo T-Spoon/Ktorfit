@@ -5,10 +5,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ksp.toKModifier
-import de.jensklingenberg.ktorfit.generator.clientClass
 import de.jensklingenberg.ktorfit.generator.ktorfitClass
-import de.jensklingenberg.ktorfit.generator.pathDataClass
-import de.jensklingenberg.ktorfit.generator.requestDataClass
 import de.jensklingenberg.ktorfit.model.ClassData
 import de.jensklingenberg.ktorfit.model.FunctionData
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.INTERFACE_NEEDS_TO_HAVE_A_PACKAGE
@@ -31,11 +28,11 @@ private fun getImports(ksClassDeclaration: KSClassDeclaration): List<String> {
             .toMutableSet()
 
     importList.add(ktorfitClass.packageName + "." + ktorfitClass.name)
-   // importList.add(clientClass.packageName + "." + clientClass.name)
+    // importList.add(clientClass.packageName + "." + clientClass.name)
     importList.add("de.jensklingenberg.ktorfit.internal.*")
 
 
-   // importList.add(pathDataClass.packageName+"."+ pathDataClass.name)
+    // importList.add(pathDataClass.packageName+"."+ pathDataClass.name)
 
     return importList.map { it.removePrefix("import ") }
 }
@@ -43,13 +40,12 @@ private fun getImports(ksClassDeclaration: KSClassDeclaration): List<String> {
 fun toClassData(ksClassDeclaration: KSClassDeclaration, logger: KSPLogger): ClassData {
 
 
-
     val imports = getImports(ksClassDeclaration)
     val packageName = ksClassDeclaration.packageName.asString()
     val className = ksClassDeclaration.simpleName.asString()
 
     val functionDataList: List<FunctionData> =
-        getFunctionDataList(ksClassDeclaration.getDeclaredFunctions().toList(), logger,imports,packageName)
+        getFunctionDataList(ksClassDeclaration.getDeclaredFunctions().toList(), logger, imports, packageName)
     val supertypes =
         ksClassDeclaration.superTypes.toList().filterNot {
             /** In KSP Any is a supertype of an interface */

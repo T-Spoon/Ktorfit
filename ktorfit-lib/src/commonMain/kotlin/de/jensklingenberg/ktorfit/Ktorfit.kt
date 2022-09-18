@@ -2,7 +2,6 @@ package de.jensklingenberg.ktorfit
 
 import de.jensklingenberg.ktorfit.Strings.Companion.EXPECTED_URL_SCHEME
 import de.jensklingenberg.ktorfit.converter.RequestConverter
-import de.jensklingenberg.ktorfit.converter.ResponseConverter
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.statement.*
@@ -15,8 +14,7 @@ class Ktorfit private constructor(
     val baseUrl: String,
     val httpClient: HttpClient = HttpClient(),
     val requestConverters: Set<RequestConverter>,
-    val kResponseConverter: Set<ResponseConverter> = emptySet()
-) {
+    ) {
 
     @Deprecated(
         "Use Ktorfit.Builder()",
@@ -25,7 +23,7 @@ class Ktorfit private constructor(
     constructor(
         baseUrl: String,
         httpClient: HttpClient = HttpClient()
-    ) : this(baseUrl, httpClient, emptySet(), emptySet())
+    ) : this(baseUrl, httpClient, emptySet())
 
     /**
      * Builder class for Ktorfit.
@@ -37,8 +35,6 @@ class Ktorfit private constructor(
         private var _baseUrl: String = ""
         private var _httpClient = HttpClient()
         private var _requestConverter: MutableSet<RequestConverter> = mutableSetOf()
-
-        private var _responseConverter: MutableSet<ResponseConverter> = mutableSetOf()
 
         /**
          * That will be used for every request with object
@@ -112,11 +108,6 @@ class Ktorfit private constructor(
             }
         }
 
-        fun responseConverter(vararg converters: ResponseConverter) = apply {
-            converters.forEach { converter ->
-                _responseConverter.add(converter)
-            }
-        }
 
         /**
          * Apply changes to builder and get the Ktorfit instance without the need of calling [build] afterwards.
@@ -127,7 +118,7 @@ class Ktorfit private constructor(
          * Creates an instance of Ktorfit with specified baseUrl and HttpClient.
          */
         fun build(): Ktorfit {
-            return Ktorfit(_baseUrl, _httpClient, _requestConverter, _responseConverter)
+            return Ktorfit(_baseUrl, _httpClient, _requestConverter)
         }
     }
 }
@@ -154,3 +145,4 @@ fun ktorfitBuilder(builder: Ktorfit.Builder.() -> Unit) = Ktorfit.Builder().appl
 inline fun <reified T> Ktorfit.create(): T {
     throw NotImplementedError("Ktorfit didn't generate Code for " + T::class.simpleName + " You need to apply the KSP Plugin")
 }
+

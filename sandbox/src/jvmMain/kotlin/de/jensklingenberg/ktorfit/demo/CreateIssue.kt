@@ -2,8 +2,6 @@ package de.jensklingenberg.ktorfit.demo
 
 import com.example.api.GithubService
 import de.jensklingenberg.ktorfit.converter.builtin.FlowRequestConverter
-import de.jensklingenberg.ktorfit.converter.builtin.KtorfitCallResponseConverter
-import de.jensklingenberg.ktorfit.converter.builtin.KtorfitSuspendCallResponseConverter
 import de.jensklingenberg.ktorfit.create
 import de.jensklingenberg.ktorfit.ktorfit
 import io.ktor.client.*

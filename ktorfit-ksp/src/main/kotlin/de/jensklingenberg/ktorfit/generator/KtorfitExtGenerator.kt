@@ -55,9 +55,10 @@ fun generateKtorfitExtClass(
         .addFunction(funSpec)
         .build()
 
-    codeGenerator.createNewFile(Dependencies.ALL_FILES, ktorfitExtClass.packageName, ktorfitExtClass.name, "kt").use { output ->
-        OutputStreamWriter(output).use { writer ->
-            writer.write(fileSpec.toString())
+    codeGenerator.createNewFile(Dependencies.ALL_FILES, ktorfitExtClass.packageName, ktorfitExtClass.name, "kt")
+        .use { output ->
+            OutputStreamWriter(output).use { writer ->
+                writer.write(fileSpec.toString())
+            }
         }
-    }
 }

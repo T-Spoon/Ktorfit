@@ -26,7 +26,7 @@ public class KtorfitProcessor(private val env: SymbolProcessorEnvironment) : Sym
     private var invoked = false
 
 
-    companion object{
+    companion object {
         lateinit var rresolver: Resolver
     }
 
@@ -43,7 +43,7 @@ public class KtorfitProcessor(private val env: SymbolProcessorEnvironment) : Sym
                 if (classDec.origin.name == "JAVA") {
                     logger.ktorfitError(JAVA_INTERFACES_ARE_NOT_SUPPORTED, classDec)
                 }
-                if(classDec.classKind != ClassKind.INTERFACE){
+                if (classDec.classKind != ClassKind.INTERFACE) {
                     logger.ktorfitError(API_DECLARATIONS_MUST_BE_INTERFACES, classDec)
                 }
                 if (classDec.typeParameters.isNotEmpty()) {
@@ -57,7 +57,7 @@ public class KtorfitProcessor(private val env: SymbolProcessorEnvironment) : Sym
 
         generateImplClass(classDataList, codeGenerator)
 
-        if(classDataList.isNotEmpty()){
+        if (classDataList.isNotEmpty()) {
             generateKtorfitExtClass(classDataList, env.platforms.any { it.platformName == "JS" }, codeGenerator)
         }
 

@@ -39,9 +39,9 @@ public class _TestServiceImpl(
   public override suspend fun test(): String {
     val requestData = RequestData(method="GET",
         relativeUrl="user",
-        qualifiedRawTypeName="kotlin.String") 
+        returnTypeData=TypeData("kotlin.String")) 
 
-    return client.suspendRequest<String, String>(requestData)!!
+    return client.suspendRequest<String>(requestData)!!
   }
 }
 
@@ -56,7 +56,7 @@ import de.jensklingenberg.ktorfit.http.GET
 interface TestService {
 
     @GET("user")
-    suspend fun test(): String
+    suspend fun test(): List<String>?
     
 }
     """
@@ -101,9 +101,9 @@ interface TestService {
         val expectedFunctionText = """public override suspend fun test(): String {
     val requestData = RequestData(method="",
         relativeUrl="user",
-        qualifiedRawTypeName="kotlin.String") 
+        returnTypeData=TypeData("kotlin.String")) 
 
-    return client.suspendRequest<String, String>(requestData)!!
+    return client.suspendRequest<String>(requestData)!!
   }"""
 
         val compilation = KotlinCompilation().apply {
@@ -146,9 +146,9 @@ interface TestService {
     val requestData = RequestData(method="GET",
         relativeUrl="user",
         bodyData = body,
-        qualifiedRawTypeName="kotlin.String") 
+        returnTypeData=TypeData("kotlin.String")) 
 
-    return client.suspendRequest<String, String>(requestData)!!
+    return client.suspendRequest<String>(requestData)!!
   }"""
 
         val compilation = KotlinCompilation().apply {

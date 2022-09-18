@@ -6,4 +6,3 @@ package de.jensklingenberg.ktorfit.model
  */
 data class TypeData(val name: String, val qualifiedName: String)
 
-

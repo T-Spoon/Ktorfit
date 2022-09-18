@@ -43,11 +43,18 @@ interface JsonPlaceHolderApi {
     suspend fun getPostById(@Path("postId") postId: Int = 4): Post
 
     @GET("posts/{postId}/comments")
-    fun getCommentsByPostId(@Path("postId") postId: Int): Flow<List<Comment>>?
+    fun getFlowCommentsByPostId(@Path("postId") postId: Int): Flow<List<Comment>>?
+
+    @GET("posts/{postId}/comments")
+    suspend fun getCommentsByPostId(@Path("postId") postId: Int): List<Comment>?
 
     @Headers(value = ["Content-Type: application/json"])
     @GET("posts/{postId}/comments")
     suspend fun callCommentsByPostId(@Path("postId") postId: Int): Call<List<Comment>>
+
+    @Headers(value = ["Content-Type: application/json"])
+    @GET("posts/{postId}/comments")
+    suspend fun resCommentsByPostId(@Path("postId") postId: Int): Response<List<Comment>>
 
     @Headers(value = ["Content-Type: application/json"])
     @GET("posts/{postId}/comments")

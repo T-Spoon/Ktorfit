@@ -2,34 +2,36 @@ package de.jensklingenberg.ktorfit.demo
 
 
 import com.example.api.JsonPlaceHolderApi
-import com.example.model.Comment
-import de.jensklingenberg.ktorfit.*
-import de.jensklingenberg.ktorfit.converter.builtin.*
-import de.jensklingenberg.ktorfit.internal.TestConverter
+import com.example.model.Post
+import com.example.model.jsonPlaceHolderApi
+import de.jensklingenberg.ktorfit.Callback
+import de.jensklingenberg.ktorfit.converter.KtorfitPlugin
+import de.jensklingenberg.ktorfit.converter.builtin.CallPlugin
+import de.jensklingenberg.ktorfit.converter.builtin.FlowRequestConverter
+import de.jensklingenberg.ktorfit.converter.builtin.KtorfitCallRequestConverter
+import de.jensklingenberg.ktorfit.create
+import de.jensklingenberg.ktorfit.ktorfit
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
-
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.statement.*
-import io.ktor.serialization.gson.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-
+import kotlinx.serialization.json.Json
 
 
 val jvmClient = HttpClient {
 
     install(Logging) {
-        level = LogLevel.NONE
+        level = LogLevel.ALL
     }
-   // install(MyPlugin("no1"))
 
-    install(CallPlugin())
     install(ContentNegotiation) {
-        gson()
+        json(Json { isLenient = true; ignoreUnknownKeys = true })
     }
 
-
+    installKtorfitPlugins(ResponsePlugin(),CallPlugin())
 
     this.developmentMode = true
     expectSuccess = false
@@ -37,6 +39,11 @@ val jvmClient = HttpClient {
 
 }
 
+private fun HttpClientConfig<*>.installKtorfitPlugins(vararg responsePlugin: KtorfitPlugin) {
+    responsePlugin.forEach {
+        this.install(it)
+    }
+}
 
 
 val jvmKtorfit = ktorfit {
@@ -47,16 +54,7 @@ val jvmKtorfit = ktorfit {
         RxRequestConverter(),
         KtorfitCallRequestConverter()
     )
-    responseConverter(
-       // MyResponseConverter(),
-        TestConverter(),
-        //PeopleResponseConverter(),
-        KtorfitCallResponseConverter(),
-        //CommentListResponseConverter()
-    //CallPlugin()
-    )
 }
-
 
 
 fun main() {
@@ -66,25 +64,22 @@ fun main() {
 
     println("==============================================")
 
+        testApi.callPosts().onExecute(object :Callback<List<Post>>{
+            override fun onResponse(call: List<Post>, response: HttpResponse) {
+                call
+            }
 
+            override fun onError(exception: Throwable) {
+                exception
+            }
+
+        })
 
     runBlocking {
 
 
-     val res =   testApi.callCommentsByPostId(3)
-
-       res.onExecute(object :Callback<List<Comment>>{
-           override fun onResponse(call: List<Comment>, response: HttpResponse) {
-               println(call)
-           }
-
-           override fun onError(exception: Throwable) {
-                exception
-
-           }
-
-       })
-
+      val tt =  jsonPlaceHolderApi.getCommentsByPostId(3)
+        println(tt)
 
 
         delay(3000)

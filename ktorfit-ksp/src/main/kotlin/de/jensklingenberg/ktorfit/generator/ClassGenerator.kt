@@ -123,7 +123,7 @@ fun getFunSpecs(classData: ClassData): List<FunSpec> = classData.functions.map {
         )
         .addStatement(
             if (functionData.isSuspend) {
-                "return ${clientClass.objectName}.suspendRequest<${returnTypeName}, $typeWithoutOuterType>(${requestDataClass.objectName})" + nullableText
+                "return ${clientClass.objectName}.suspendRequest<${returnTypeName}>(${requestDataClass.objectName})" + nullableText
             } else {
                 "return ${clientClass.objectName}.request<${returnTypeName}, $typeWithoutOuterType>(${requestDataClass.objectName})" + nullableText
             }

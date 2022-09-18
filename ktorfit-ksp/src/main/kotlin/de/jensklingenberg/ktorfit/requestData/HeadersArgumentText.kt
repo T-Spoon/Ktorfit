@@ -22,7 +22,7 @@ fun getHeadersArgumentText(
     val paramsWithHeaderMap = paramList.filter { it.hasAnnotation<HeaderMap>() }
 
     if (functionAnnotations.any { it is FormUrlEncoded }) {
-          headerList.add(Pair("Content-Type".surroundWith("\""), "application/x-www-form-urlencoded".surroundWith("\"")))
+        headerList.add(Pair("Content-Type".surroundWith("\""), "application/x-www-form-urlencoded".surroundWith("\"")))
     }
 
     paramsWithHeaderAnno.forEach { myParam ->
@@ -34,9 +34,9 @@ fun getHeadersArgumentText(
 
 
     headersAnno?.path?.forEach {
-            val (key, value) = it.split(":")
+        val (key, value) = it.split(":")
 
-            headerList.add(Pair(key.surroundWith("\""), value.trim().surroundWith("\"")))
+        headerList.add(Pair(key.surroundWith("\""), value.trim().surroundWith("\"")))
 
     }
 

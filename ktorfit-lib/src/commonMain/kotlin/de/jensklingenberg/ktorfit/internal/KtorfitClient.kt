@@ -1,14 +1,8 @@
 package de.jensklingenberg.ktorfit.internal
 
-import de.jensklingenberg.ktorfit.converter.ResponseConverter
 import de.jensklingenberg.ktorfit.Ktorfit
-import de.jensklingenberg.ktorfit.converter.MyMy
-import de.jensklingenberg.ktorfit.converter.builtin.CallPlugin
-
-import de.jensklingenberg.ktorfit.converter.builtin.MyPlugin2
-import de.jensklingenberg.ktorfit.upperBoundType
+import de.jensklingenberg.ktorfit.converter.KtorfitPluginErrorHandler
 import io.ktor.client.call.*
-import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
@@ -16,33 +10,6 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.util.*
 import io.ktor.util.reflect.*
-import kotlin.reflect.KClass
-
-class TypeData(val packageName: String, val typeArgs: List<TypeData> = emptyList())
-
-fun getti(text: String): TypeData {
-    var className = text.substringBefore("<", "")
-    if (className.isEmpty()) {
-        className = text.substringBefore(",", "")
-    }
-    if (className.isEmpty()) {
-        className = text
-    }
-    val type = (text.removePrefix(className)).substringAfter("<").substringBeforeLast(">")
-    var typo = mutableListOf<TypeData>()
-    if (type.contains("<")) {
-        typo.add(getti(type))
-    } else if (type.contains(",")) {
-        type.split(",").forEach {
-            typo.add(getti(it))
-        }
-    } else if (type.isNotEmpty()) {
-        typo.add(getti(type))
-    }
-
-    return TypeData(className, typo)
-}
-
 
 /**
  * This class will be used by the generated Code
@@ -60,186 +27,87 @@ class KtorfitClient(val ktorfit: Ktorfit) {
         return value.toString().encodeURLParameter()
     }
 
-    fun findConverter(
-        kResponseConverter: Set<ResponseConverter>,
-        qualifiedRawTypeName: TypeData,
-        ktorfit: Ktorfit
-    ): ResponseConverter? {
-        return kResponseConverter.firstOrNull() { it.supportedType(qualifiedRawTypeName) }
+
+    /**
+     * This will handle all requests for functions without suspend modifier
+     */
+    inline fun <reified ReturnType, reified RequestType : Any?> request(
+        requestData: RequestData
+    ): ReturnType? {
+
+        ktorfit.requestConverters.firstOrNull { converter ->
+            converter.supportedType(
+                requestData.returnTypeData
+            )
+        }?.let { requestConverter ->
+            return requestConverter.convertRequest<RequestType?>(
+                typeData = requestData.returnTypeData,
+                requestFunction = {
+                    try {
+                        val data = suspendRequest<HttpResponse>(requestData)
+                        Pair(typeInfo<RequestType?>(), data)
+                    } catch (ex: Exception) {
+                        throw ex
+                    }
+                },
+                ktorfit = ktorfit
+            ) as ReturnType?
+        }
+
+        val typeIsNullable = requestData.returnTypeData.qualifiedName.endsWith("?")
+        return if (typeIsNullable) {
+            null
+        } else {
+            throw IllegalArgumentException("Add a RequestConverter for " + requestData.returnTypeData.qualifiedName + " or make function suspend")
+        }
 
     }
-
 
     /**
      * This will handle all requests for functions with suspend modifier
      * Used by generated Code
      */
-    suspend inline fun <reified TReturn, reified PRequest : Any?> suspendRequest(
+    suspend inline fun <reified ReturnType> suspendRequest(
         requestData: RequestData
-    ): TReturn? {
-        val my = mutableListOf<MyMy>()
-
-
-        val tt = typeInfo<TReturn>().type!!
-
-        httpClient.config {
-            install(CallPlugin())
-        }
-        val test = httpClient.pluginOrNull(CallPlugin())
-
-        with(httpClient){
-            this.config {
-
+    ): ReturnType? {
+        try {
+            if (ReturnType::class == HttpStatement::class) {
+                return httpClient.prepareRequest {
+                    requestBuilder(requestData)
+                } as ReturnType
             }
-        }
-
-        httpClient.config {
-
-            install("ddd") {
-                this.responsePipeline.intercept(HttpResponsePipeline.Receive) { (info, body) ->
-                    val result =
-                        HttpResponseContainer(info, body)
-
-
-
-                    proceedWith(result)
-                }
-
-            }
-
-
-        }
-
-        if (TReturn::class == HttpStatement::class) {
-            return httpClient.prepareRequest {
-                requestBuilder(requestData)
-            } as TReturn
-        }
-
-
-        val response = try {
-            httpClient.request {
+            val response = httpClient.request {
                 requestBuilder(requestData)
             }
-        } catch (ex: Exception) {
-
-            val typeIsNullable = requestData.qualifiedRawTypeName.packageName.endsWith("?")
-            return if (typeIsNullable) {
-                null
-            } else {
-                throw ex
+            if (ReturnType::class == HttpResponse::class) {
+                return response as ReturnType
             }
-        }
 
-        if (TReturn::class == HttpResponse::class) {
-            return response as TReturn
-        }
+            return response.body<ReturnType>()
 
-
-        val outerConverter = findConverter(ktorfit.kResponseConverter, requestData.qualifiedRawTypeName, ktorfit)
-
-        val next = requestData.qualifiedRawTypeName.typeArgs.first()
-
-        val innerConverter = findConverter(ktorfit.kResponseConverter, next, ktorfit)
-
-
-        //    val a1 = innerConverter?.convert(response) ?: response.body<TReturn>()
-
-        return response.body<TReturn>()
-        if (innerConverter == null) {
-            ktorfit.kResponseConverter.firstOrNull { it.supportedType(next) }
-        }
-
-        ktorfit.kResponseConverter.firstOrNull { converter ->
-            converter.supportedType(
-                requestData.qualifiedRawTypeName
-            )
-        }?.let {
-            return it.convert(
-                data = response.body<PRequest>(),
-                httpResponse = response,
-            ) as TReturn
-        }
-
-        return try {
-            ktorfit.kResponseConverter.firstOrNull {
-                it.supportedType(requestData.qualifiedRawTypeName) != null
-            }?.let {
-                return it.convert(response, ktorfit)!!
-                        as TReturn
-            } ?: response.body<TReturn>()
         } catch (exception: Exception) {
-            val typeIsNullable = requestData.qualifiedRawTypeName.packageName.endsWith("?")
+            val typeIsNullable = requestData.returnTypeData.qualifiedName.endsWith("?")
             return if (typeIsNullable) {
                 null
             } else {
+                val pluginInstalledList = AttributeKey<Attributes>("ApplicationPluginRegistry")
+                val attributes = httpClient.attributes.getOrNull(pluginInstalledList)
+                val ktorfitPlugins = attributes?.allKeys?.filter { it.name.contains("Ktorfit") }
+                val handlers = ktorfitPlugins?.map { attributes[it] }?.filterIsInstance<KtorfitPluginErrorHandler>()
+                val errorHandlers = handlers ?: emptyList()
+
+                errorHandlers.forEach { errorHandler ->
+                    if (ReturnType::class == errorHandler.clazz) {
+                        val returnValue = errorHandler.onError(exception)
+                        returnValue?.let {
+                            return it as ReturnType
+                        }
+                    }
+                }
                 throw exception
             }
-
         }
-
     }
-
-
-    //T is return type
-    //P is requested type
-    /**
-     * This will handle all requests for functions without suspend modifier
-     */
-    inline fun <reified TReturn, reified PRequest : Any?> request(
-        requestData: RequestData
-    ): TReturn? {
-        httpClient.config {
-            install(MyPlugin2("no2"))
-
-        }
-        val reqConv = ktorfit.requestConverters.firstOrNull { converter ->
-            converter.supportedType(
-                requestData.qualifiedRawTypeName
-            )
-        }
-
-        reqConv?.let { requetConv ->
-            return requetConv.convertRequest<TReturn>(
-                typeData = requestData.qualifiedRawTypeName,
-                requestFunction = {
-
-                    val response = httpClient.request {
-                        requestBuilder(requestData)
-                    }
-
-                    val kConv = ktorfit.kResponseConverter.firstOrNull {
-                        it.supportedType(requestData.qualifiedRawTypeName.typeArgs.first())
-                    }
-
-                    kConv?.let {
-                        println("===============   " + it)
-                        val gg = it.convert(
-                            response,
-                            ktorfit
-                        ) as TReturn
-                        Pair(gg, response)
-                    } ?: Pair(
-                        response.body(),
-                        response
-                    )
-
-                },
-                ktorfit = ktorfit
-            ) as TReturn
-        }
-
-
-        val typeIsNullable = requestData.qualifiedRawTypeName.packageName.endsWith("?")
-        return if (typeIsNullable) {
-            null
-        } else {
-            throw IllegalArgumentException("Add a ResponseConverter for " + requestData.qualifiedRawTypeName.packageName + " or make function suspend")
-
-        }
-
-    }
-
 
     fun HttpRequestBuilder.requestBuilder(
         requestData: RequestData
@@ -364,7 +232,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
      * QueryNames will be handled special because otherwise Ktor always adds a "=" behind every
      * query e.g. QueryName("Hello") will be sent by Ktor like "?Hello="
      */
-    private fun HttpRequestBuilder.handleQueryNames(requestData: RequestData): String {
+    private fun handleQueryNames(requestData: RequestData): String {
         val queryNames = mutableListOf<String>()
         requestData.queries.filter { it.type == QueryType.QUERYNAME }.forEach { entry ->
             when (val data = entry.data) {
@@ -483,3 +351,4 @@ class KtorfitClient(val ktorfit: Ktorfit) {
         value.let { url.encodedParameters.append(key, it.toString()) } ?: Unit
 
 }
+

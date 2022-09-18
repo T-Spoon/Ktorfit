@@ -1,7 +1,6 @@
 package com.example.model
 
 import com.example.api.JsonPlaceHolderApi
-import com.example.api.PostListResponseConverter
 import de.jensklingenberg.ktorfit.converter.builtin.FlowRequestConverter
 import de.jensklingenberg.ktorfit.converter.builtin.KtorfitCallRequestConverter
 import de.jensklingenberg.ktorfit.create
@@ -12,21 +11,18 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
 
-val httpClient2 = HttpClient() {
+val commonClient = HttpClient() {
     install(ContentNegotiation) {
-        // json(Json { isLenient = true; ignoreUnknownKeys = true })
+         json(Json { isLenient = true; ignoreUnknownKeys = true })
     }
 }
 
 val commonKtorfit = ktorfit {
     baseUrl(JsonPlaceHolderApi.baseUrl)
-    httpClient(httpClient2)
+    httpClient(commonClient)
     requestConverter(
         KtorfitCallRequestConverter(),
         FlowRequestConverter()
-    )
-    responseConverter(
-        PostListResponseConverter()
     )
 }
 
