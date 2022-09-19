@@ -5,10 +5,10 @@ import com.example.api.JsonPlaceHolderApi
 import com.example.model.Post
 import com.example.model.jsonPlaceHolderApi
 import de.jensklingenberg.ktorfit.Callback
-import de.jensklingenberg.ktorfit.converter.KtorfitPlugin
-import de.jensklingenberg.ktorfit.converter.builtin.CallPlugin
-import de.jensklingenberg.ktorfit.converter.builtin.FlowRequestConverter
-import de.jensklingenberg.ktorfit.converter.builtin.KtorfitCallRequestConverter
+import de.jensklingenberg.ktorfit.converter.builtin.response.KtorfitResponseConverterPlugin
+import de.jensklingenberg.ktorfit.converter.builtin.response.CallResponseConverterPlugin
+import de.jensklingenberg.ktorfit.converter.builtin.request.FlowRequestConverter
+import de.jensklingenberg.ktorfit.converter.builtin.request.KtorfitCallRequestConverter
 import de.jensklingenberg.ktorfit.create
 import de.jensklingenberg.ktorfit.ktorfit
 import io.ktor.client.*
@@ -31,7 +31,7 @@ val jvmClient = HttpClient {
         json(Json { isLenient = true; ignoreUnknownKeys = true })
     }
 
-    installKtorfitPlugins(ResponsePlugin(),CallPlugin())
+    installKtorfitPlugins(ResponseResponseConverterPlugin(), CallResponseConverterPlugin())
 
     this.developmentMode = true
     expectSuccess = false
@@ -39,7 +39,7 @@ val jvmClient = HttpClient {
 
 }
 
-private fun HttpClientConfig<*>.installKtorfitPlugins(vararg responsePlugin: KtorfitPlugin) {
+private fun HttpClientConfig<*>.installKtorfitPlugins(vararg responsePlugin: KtorfitResponseConverterPlugin) {
     responsePlugin.forEach {
         this.install(it)
     }

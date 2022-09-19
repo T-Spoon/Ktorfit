@@ -1,4 +1,4 @@
-package de.jensklingenberg.ktorfit.generator
+package de.jensklingenberg.ktorfit.model
 
 data class KtorfitClass(val name: String, val packageName: String, val objectName: String)
 

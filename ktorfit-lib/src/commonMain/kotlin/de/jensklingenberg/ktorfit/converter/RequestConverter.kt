@@ -6,8 +6,8 @@ import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 
 /**
- * Implement this to support wrapping for custom types
- *  e.g. fun test() : MyCustomType<String>
+ *
+ * WHen not suspend
  */
 interface RequestConverter : CoreResponseConverter {
 

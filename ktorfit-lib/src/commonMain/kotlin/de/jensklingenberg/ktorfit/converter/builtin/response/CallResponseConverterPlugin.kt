@@ -1,19 +1,17 @@
-package de.jensklingenberg.ktorfit.converter.builtin
+package de.jensklingenberg.ktorfit.converter.builtin.response
 
 import de.jensklingenberg.ktorfit.Call
 import de.jensklingenberg.ktorfit.Callback
-import de.jensklingenberg.ktorfit.converter.KtorfitPlugin
 import io.ktor.client.statement.*
-import io.ktor.util.*
 import io.ktor.util.reflect.*
 
-class CallPlugin() : KtorfitPlugin() {
+class CallResponseConverterPlugin() : KtorfitResponseConverterPlugin() {
 
 
-    override fun getClass() = Call::class
+    override fun pluginForClass() = Call::class
 
     override fun convert(info: TypeInfo, body: Any, response: HttpResponse): Pair<TypeInfo, Call<Any>> {
-        val newInfo = TypeInfo(getClass(), info.reifiedType, info.kotlinType)
+        val newInfo = TypeInfo(pluginForClass(), info.reifiedType, info.kotlinType)
         val call = object : Call<Any> {
             override fun onExecute(callBack: Callback<Any>) {
                     callBack.onResponse(body, response)
@@ -26,7 +24,7 @@ class CallPlugin() : KtorfitPlugin() {
         return "CallPlugin"
     }
 
-    override fun returnWhenException(exception: Exception) : Any?{
+    override fun onErrorReturn(exception: Exception) : Any?{
         val call = object : Call<Any> {
             override fun onExecute(callBack: Callback<Any>) {
                     callBack.onError(exception)

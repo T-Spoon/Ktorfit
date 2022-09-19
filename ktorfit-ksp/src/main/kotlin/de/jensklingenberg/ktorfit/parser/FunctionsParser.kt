@@ -2,8 +2,7 @@ package de.jensklingenberg.ktorfit.parser
 
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import de.jensklingenberg.ktorfit.model.FunctionData
-import de.jensklingenberg.ktorfit.model.KtorfitError
+import de.jensklingenberg.ktorfit.model.*
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.BODY_PARAMETERS_CANNOT_BE_USED_WITH_FORM_OR_MULTI_PART_ENCODING
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.FIELD_MAP_PARAMETERS_CAN_ONLY_BE_USED_WITH_FORM_ENCODING
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.FIELD_PARAMETERS_CAN_ONLY_BE_USED_WITH_FORM_ENCODING
@@ -21,9 +20,7 @@ import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.ONLY_ONE_HTTP_MET
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.ONLY_ONE_REQUEST_BUILDER_IS_ALLOWED
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.PATH_CAN_ONLY_BE_USED_WITH_RELATIVE_URL_ON
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.URL_CAN_ONLY_BE_USED_WITH_EMPY
-import de.jensklingenberg.ktorfit.model.TypeData
 import de.jensklingenberg.ktorfit.model.annotations.*
-import de.jensklingenberg.ktorfit.model.ktorfitError
 import de.jensklingenberg.ktorfit.utils.*
 
 /**
@@ -55,15 +52,15 @@ fun getFunctionDataList(
         val functionName = funcDeclaration.simpleName.asString()
         val functionParameters = funcDeclaration.parameters.map { getParameterData(it, logger) }
 
-        val unqualified = getMyType(
-            funcDeclaration.returnType?.resolve().resolveTypeName().replace("\\s".toRegex(), ""),
+        val typeData = getMyType(
+            funcDeclaration.returnType?.resolve().resolveTypeName().removeWhiteSpaces(),
             imports,
             packageName
         )
 
-        val returnType = TypeData(
+        val returnType = ReturnTypeData(
             funcDeclaration.returnType?.resolve().resolveTypeName(),
-            unqualified.toString()
+            typeData.toString()
         )
 
         val functionAnnotationList = mutableListOf<FunctionAnnotation>()
@@ -220,4 +217,8 @@ fun getFunctionDataList(
         )
 
     }
+}
+
+private fun String.removeWhiteSpaces(): String {
+    return this.replace("\\s".toRegex(), "")
 }

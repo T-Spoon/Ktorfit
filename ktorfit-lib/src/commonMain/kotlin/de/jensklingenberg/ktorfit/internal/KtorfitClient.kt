@@ -1,7 +1,8 @@
 package de.jensklingenberg.ktorfit.internal
 
 import de.jensklingenberg.ktorfit.Ktorfit
-import de.jensklingenberg.ktorfit.converter.KtorfitPluginErrorHandler
+import de.jensklingenberg.ktorfit.converter.builtin.response.KtorfitResponseConverterPlugin
+
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
@@ -93,7 +94,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
                 val pluginInstalledList = AttributeKey<Attributes>("ApplicationPluginRegistry")
                 val attributes = httpClient.attributes.getOrNull(pluginInstalledList)
                 val ktorfitPlugins = attributes?.allKeys?.filter { it.name.contains("Ktorfit") }
-                val handlers = ktorfitPlugins?.map { attributes[it] }?.filterIsInstance<KtorfitPluginErrorHandler>()
+                val handlers = ktorfitPlugins?.map { attributes[it] }?.filterIsInstance<KtorfitResponseConverterPlugin.KtorfitPluginErrorHandler>()
                 val errorHandlers = handlers ?: emptyList()
 
                 errorHandlers.forEach { errorHandler ->

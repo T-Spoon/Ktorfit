@@ -1,8 +1,82 @@
 package de.jensklingenberg.ktorfit.model
 
-/**
- * @param name TestClass
- * @param qualifiedName com.example.TestClass
- */
-data class TypeData(val name: String, val qualifiedName: String)
+import KtorfitProcessor
+import com.google.devtools.ksp.getClassDeclarationByName
+import de.jensklingenberg.ktorfit.utils.surroundIfNotEmpty
 
+//https://kotlinlang.org/docs/packages.html
+fun defaultImports() = listOf(
+    "kotlin.*",
+    "kotlin.annotation.*",
+    "kotlin.collections.*",
+    "kotlin.comparisons.*",
+    "kotlin.io.*",
+    "kotlin.ranges.*",
+    "kotlin.sequences.*",
+    "kotlin.text.*"
+)
+
+data class TypeData(val qualifiedName: String, val typeArgs: List<TypeData> = emptyList()) {
+    override fun toString(): String {
+        val typeArgumentsText = typeArgs.joinToString() { it.toString() }.surroundIfNotEmpty(",listOf(",")")
+        return """TypeData("$qualifiedName"$typeArgumentsText)"""
+    }
+}
+
+//TODO: Add test
+fun getMyType(text: String, imports: List<String>, packageName: String): TypeData {
+    val classImports = imports + defaultImports()
+    var className = text.substringBefore("<", "")
+    if (className.isEmpty()) {
+        className = text.substringBefore(",", "")
+    }
+    if (className.isEmpty()) {
+        className = text
+    }
+    val type = (text.removePrefix(className)).substringAfter("<").substringBeforeLast(">")
+    val argumentsTypes = mutableListOf<TypeData>()
+    if (type.contains("<")) {
+        argumentsTypes.add(getMyType(type, classImports, packageName))
+    } else if (type.contains(",")) {
+        type.split(",").forEach {
+            argumentsTypes.add(getMyType(it, classImports, packageName))
+        }
+    } else if (type.isNotEmpty()) {
+        argumentsTypes.add(getMyType(type, classImports, packageName))
+    }
+
+
+    //Look in package
+    val found =
+        KtorfitProcessor.rresolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()
+    found?.let {
+        className = it
+    }
+
+    //Look in imports
+
+
+    //Wildcards
+    val isWildCard = className == "*"
+    if (!isWildCard) {
+        classImports.forEach {
+            if (it.substringAfterLast(".") == className) {
+                className = it
+            }
+
+            val packageName = it.substringBeforeLast(".")
+            val found2 =
+                KtorfitProcessor.rresolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()
+            found2?.let {
+                className = it
+            }
+        }
+    }
+    val nullable = if (text.endsWith("?") && !className.endsWith("?")) {
+        "?"
+    } else {
+        ""
+    }
+
+    return TypeData(className + nullable, argumentsTypes)
+}

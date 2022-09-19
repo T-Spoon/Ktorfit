@@ -5,7 +5,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.squareup.kotlinpoet.ksp.toKModifier
-import de.jensklingenberg.ktorfit.generator.ktorfitClass
+import de.jensklingenberg.ktorfit.model.ktorfitClass
 import de.jensklingenberg.ktorfit.model.ClassData
 import de.jensklingenberg.ktorfit.model.FunctionData
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.INTERFACE_NEEDS_TO_HAVE_A_PACKAGE
@@ -28,17 +28,18 @@ private fun getImports(ksClassDeclaration: KSClassDeclaration): List<String> {
             .toMutableSet()
 
     importList.add(ktorfitClass.packageName + "." + ktorfitClass.name)
-    // importList.add(clientClass.packageName + "." + clientClass.name)
     importList.add("de.jensklingenberg.ktorfit.internal.*")
-
-
-    // importList.add(pathDataClass.packageName+"."+ pathDataClass.name)
 
     return importList.map { it.removePrefix("import ") }
 }
 
+/**
+ * Convert a [KSClassDeclaration] to [ClassData]
+ * @param ksClassDeclaration interface that contains Ktorfit annotations
+ * @param logger used to log errors
+ * @return the transformed classdata
+ */
 fun toClassData(ksClassDeclaration: KSClassDeclaration, logger: KSPLogger): ClassData {
-
 
     val imports = getImports(ksClassDeclaration)
     val packageName = ksClassDeclaration.packageName.asString()

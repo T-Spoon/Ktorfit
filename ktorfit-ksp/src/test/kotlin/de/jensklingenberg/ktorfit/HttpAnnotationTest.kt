@@ -23,14 +23,7 @@ class HttpAnnotationTest() {
 package com.example.api
 
 import de.jensklingenberg.ktorfit.Ktorfit
-import de.jensklingenberg.ktorfit.`internal`.FieldData
-import de.jensklingenberg.ktorfit.`internal`.FieldType
-import de.jensklingenberg.ktorfit.`internal`.HeaderData
-import de.jensklingenberg.ktorfit.`internal`.KtorfitClient
-import de.jensklingenberg.ktorfit.`internal`.PathData
-import de.jensklingenberg.ktorfit.`internal`.QueryData
-import de.jensklingenberg.ktorfit.`internal`.QueryType
-import de.jensklingenberg.ktorfit.`internal`.RequestData
+import de.jensklingenberg.ktorfit.`internal`.*
 import de.jensklingenberg.ktorfit.http.GET
 
 public class _TestServiceImpl(
@@ -56,7 +49,7 @@ import de.jensklingenberg.ktorfit.http.GET
 interface TestService {
 
     @GET("user")
-    suspend fun test(): List<String>?
+    suspend fun test(): String
     
 }
     """

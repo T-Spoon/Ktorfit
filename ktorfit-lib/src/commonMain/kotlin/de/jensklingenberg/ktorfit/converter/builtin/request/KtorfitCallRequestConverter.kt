@@ -1,4 +1,4 @@
-package de.jensklingenberg.ktorfit.converter.builtin
+package de.jensklingenberg.ktorfit.converter.builtin.request
 
 import de.jensklingenberg.ktorfit.Call
 import de.jensklingenberg.ktorfit.Callback
@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
  * Converter to enable the use of Call<> as return type
  * e.g. fun test(): Call<String>
  */
-class KtorfitCallRequestConverter : RequestConverter{
+class KtorfitCallRequestConverter : RequestConverter {
 
 
     override fun supportedType(returnTypeName: TypeData): Boolean {
@@ -48,7 +48,6 @@ class KtorfitCallRequestConverter : RequestConverter{
     }
 
 }
-
 
 @Deprecated("Use KtorfitCallResponseConverter instead", ReplaceWith("KtorfitCallResponseConverter"))
 typealias KtorfitSuspendCallResponseConverter = KtorfitCallRequestConverter

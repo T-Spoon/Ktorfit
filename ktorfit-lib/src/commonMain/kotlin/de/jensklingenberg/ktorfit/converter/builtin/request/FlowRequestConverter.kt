@@ -1,4 +1,4 @@
-package de.jensklingenberg.ktorfit.converter.builtin
+package de.jensklingenberg.ktorfit.converter.builtin.request
 
 import de.jensklingenberg.ktorfit.Ktorfit
 import de.jensklingenberg.ktorfit.converter.RequestConverter
