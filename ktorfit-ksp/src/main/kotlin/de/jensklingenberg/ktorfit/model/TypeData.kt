@@ -35,9 +35,13 @@ fun getMyType(text: String, imports: List<String>, packageName: String): TypeDat
     }
     val type = (text.removePrefix(className)).substringAfter("<").substringBeforeLast(">")
     val argumentsTypes = mutableListOf<TypeData>()
-    if (type.contains("<")) {
+
+    val hasTypeArgs = type.contains("<")
+    val isTypeArgument = type.contains(",")
+
+    if (hasTypeArgs) {
         argumentsTypes.add(getMyType(type, classImports, packageName))
-    } else if (type.contains(",")) {
+    } else if (isTypeArgument) {
         type.split(",").forEach {
             argumentsTypes.add(getMyType(it, classImports, packageName))
         }

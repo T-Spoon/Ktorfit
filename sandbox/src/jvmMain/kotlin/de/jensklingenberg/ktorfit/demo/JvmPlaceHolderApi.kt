@@ -1,9 +1,9 @@
 package de.jensklingenberg.ktorfit.demo
 
+import com.example.api.Response
 import com.example.api.StarWarsApi
 import com.example.model.People
 import de.jensklingenberg.ktorfit.Call
-import de.jensklingenberg.ktorfit.converter.builtin.Response
 import de.jensklingenberg.ktorfit.http.*
 import io.ktor.client.statement.*
 

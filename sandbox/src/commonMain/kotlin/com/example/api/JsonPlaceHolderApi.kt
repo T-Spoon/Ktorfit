@@ -1,21 +1,9 @@
 package com.example.api
 
 import com.example.model.Comment
-import com.example.model.People
 import com.example.model.Post
 import de.jensklingenberg.ktorfit.Call
-import de.jensklingenberg.ktorfit.converter.builtin.Response
-import de.jensklingenberg.ktorfit.http.Body
-import de.jensklingenberg.ktorfit.http.DELETE
-import de.jensklingenberg.ktorfit.http.GET
-import de.jensklingenberg.ktorfit.http.HeaderMap
-import de.jensklingenberg.ktorfit.http.Headers
-import de.jensklingenberg.ktorfit.http.PATCH
-import de.jensklingenberg.ktorfit.http.POST
-import de.jensklingenberg.ktorfit.http.Path
-import de.jensklingenberg.ktorfit.http.QueryMap
-import de.jensklingenberg.ktorfit.http.QueryName
-import de.jensklingenberg.ktorfit.http.Streaming
+import de.jensklingenberg.ktorfit.http.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow

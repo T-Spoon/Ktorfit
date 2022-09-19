@@ -1,4 +1,4 @@
-package de.jensklingenberg.ktorfit.converter.builtin
+package com.example.api
 
 sealed class Response<T> {
     data class Success<T>(val data: T) : Response<T>()
@@ -6,6 +6,6 @@ sealed class Response<T> {
 
     companion object {
         fun <T> success(data: T) = Success(data)
-        fun error(ex: Throwable) = Response.Error(ex)
+        fun error(ex: Throwable) = Error(ex)
     }
 }

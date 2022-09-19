@@ -186,21 +186,23 @@ exampleApi.upload("Ktor logo",multipart)
 
 All your parameters annotated with @Part wil be combined and send as MultiPartFormDataContent
 
-##ResponseConverter
+## RequestConverter
+Ktor is using Coroutines, so by default your functions in your interfaces needs to be **suspend** functions.
+To change this you can use a RequestConverter:
 
-The idea of a ResponseConverter is to enable directly wrapping response types into other data holder types. 
+You can add RequestConverter on your Ktorfit object.
 
-You can add adapters on your Ktorfit object.
+
 
 ```kotlin
-ktorfit.responseConverter(FlowResponseConverter())
+ktorfit.requestConverter(FlowRequestConverter())
 ```
 
 ###Flow
-Ktorfit has support for Kotlin Flow. You need add the FlowResponseConverter() to your Ktorfit instance.
+Ktorfit has support for Kotlin Flow. You need add the FlowRequestConverter() to your Ktorfit instance.
 
 ```kotlin
-ktorfit.responseConverter(FlowResponseConverter())
+ktorfit.requestConverter(FlowRequestConverter())
 ```
 
 ```kotlin
@@ -240,8 +242,19 @@ You can use Call<T> to receive the response in a Callback.
 You can also add your own Converter. You just need to implement ResponseConverter
 
 ```kotlin
-class OwnResponseConverter : ResponseConverter {
+class OwnResponseConverter : RequestConverter {
    ...
+```
+
+
+
+## ResponseConverterPlugin
+
+```kotlin
+val client = HttpClient {
+    installKtorfitPlugins(ResponseResponseConverterPlugin(), CallResponseConverterPlugin())
+
+}
 ```
 
 ### JSON
@@ -255,7 +268,6 @@ val ktorClient = HttpClient() {
         }
 }
 ```
-
 
 ## Streaming
 
