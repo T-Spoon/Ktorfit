@@ -187,7 +187,8 @@ exampleApi.upload("Ktor logo",multipart)
 All your parameters annotated with @Part wil be combined and send as MultiPartFormDataContent
 
 ## RequestConverter
-Ktor is using Coroutines, so by default your functions in your interfaces needs to be **suspend** functions.
+Because Ktor relies on Coroutines by default your functions need to have the suspend modifier. Alternatively you can use #Flow or Call
+
 To change this you can use a RequestConverter:
 
 You can add RequestConverter on your Ktorfit object.
@@ -198,7 +199,7 @@ You can add RequestConverter on your Ktorfit object.
 ktorfit.requestConverter(FlowRequestConverter())
 ```
 
-###Flow
+### Flow
 Ktorfit has support for Kotlin Flow. You need add the FlowRequestConverter() to your Ktorfit instance.
 
 ```kotlin
@@ -239,7 +240,7 @@ exampleApi.getPersonById(3).onExecute(object : Callback<People>{
 You can use Call<T> to receive the response in a Callback.
 
 ### Your own
-You can also add your own Converter. You just need to implement ResponseConverter
+You can also add your own Converter. You just need to implement RequestConverter
 
 ```kotlin
 class OwnResponseConverter : RequestConverter {
@@ -249,6 +250,8 @@ class OwnResponseConverter : RequestConverter {
 
 
 ## ResponseConverterPlugin
+
+Let`s say you want to request a list of Comments
 
 ```kotlin
 val client = HttpClient {
@@ -331,7 +334,7 @@ Next you have to add the Ktorfit KSP Plugin to the common target and every compi
 
 
 ```kotlin
-val ktorfitVersion = "1.0.0-beta12"
+val ktorfitVersion = "1.0.0-beta13"
 
 dependencies {
     add("kspCommonMainMetadata", "de.jensklingenberg.ktorfit:ktorfit-ksp:$ktorfitVersion")
@@ -348,7 +351,7 @@ Look here for more information https://kotlinlang.org/docs/ksp-multiplatform.htm
 
 Add the Ktorfit-lib to your common module.
 ```kotlin
-val ktorfitVersion = "1.0.0-beta12"
+val ktorfitVersion = "1.0.0-beta13"
 
 sourceSets {
     val commonMain by getting{
