@@ -8,11 +8,14 @@ import com.tschuchort.compiletesting.kspIncremental
 import com.tschuchort.compiletesting.kspSourcesDir
 import com.tschuchort.compiletesting.symbolProcessorProviders
 import de.jensklingenberg.ktorfit.model.KtorfitError
+import de.jensklingenberg.ktorfit.model.getMyType
 import org.junit.Assert
 import org.junit.Test
 import java.io.File
 
 class FieldAnnotationsTest {
+
+
 
 
     @Test
@@ -26,7 +29,7 @@ import de.jensklingenberg.ktorfit.http.GET
 interface TestService {
 
     @GET("posts")
-    suspend fun test(): String
+    suspend fun test(): Map<String,Int>
     
 }
     """

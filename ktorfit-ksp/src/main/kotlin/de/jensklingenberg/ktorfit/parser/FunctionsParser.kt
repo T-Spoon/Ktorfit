@@ -1,5 +1,6 @@
 package de.jensklingenberg.ktorfit.parser
 
+import KtorfitProcessor
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import de.jensklingenberg.ktorfit.model.*
@@ -55,7 +56,8 @@ fun getFunctionDataList(
         val typeData = getMyType(
             funcDeclaration.returnType?.resolve().resolveTypeName().removeWhiteSpaces(),
             imports,
-            packageName
+            packageName,
+            KtorfitProcessor.rresolver
         )
 
         val returnType = ReturnTypeData(

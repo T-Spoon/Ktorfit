@@ -3,6 +3,7 @@ package de.jensklingenberg.ktorfit.model
 import KtorfitProcessor
 import com.google.devtools.ksp.getClassDeclarationByName
 import de.jensklingenberg.ktorfit.utils.surroundIfNotEmpty
+import javax.naming.spi.Resolver
 
 //https://kotlinlang.org/docs/packages.html
 fun defaultImports() = listOf(
@@ -18,13 +19,13 @@ fun defaultImports() = listOf(
 
 data class TypeData(val qualifiedName: String, val typeArgs: List<TypeData> = emptyList()) {
     override fun toString(): String {
-        val typeArgumentsText = typeArgs.joinToString() { it.toString() }.surroundIfNotEmpty(",listOf(",")")
+        val typeArgumentsText = typeArgs.joinToString { it.toString() }.surroundIfNotEmpty(",listOf(",")")
         return """TypeData("$qualifiedName"$typeArgumentsText)"""
     }
 }
 
 //TODO: Add test
-fun getMyType(text: String, imports: List<String>, packageName: String): TypeData {
+fun getMyType(text: String, imports: List<String>, packageName: String,resolver: com.google.devtools.ksp.processing.Resolver): TypeData {
     val classImports = imports + defaultImports()
     var className = text.substringBefore("<", "")
     if (className.isEmpty()) {
@@ -40,19 +41,18 @@ fun getMyType(text: String, imports: List<String>, packageName: String): TypeDat
     val isTypeArgument = type.contains(",")
 
     if (hasTypeArgs) {
-        argumentsTypes.add(getMyType(type, classImports, packageName))
+        argumentsTypes.add(getMyType(type, classImports, packageName,resolver))
     } else if (isTypeArgument) {
         type.split(",").forEach {
-            argumentsTypes.add(getMyType(it, classImports, packageName))
+            argumentsTypes.add(getMyType(it, classImports, packageName,resolver))
         }
     } else if (type.isNotEmpty()) {
-        argumentsTypes.add(getMyType(type, classImports, packageName))
+        argumentsTypes.add(getMyType(type, classImports, packageName,resolver))
     }
 
 
     //Look in package
-    val found =
-        KtorfitProcessor.rresolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()
+    val found = resolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()
     found?.let {
         className = it
     }
@@ -70,7 +70,7 @@ fun getMyType(text: String, imports: List<String>, packageName: String): TypeDat
 
             val packageName = it.substringBeforeLast(".")
             val found2 =
-                KtorfitProcessor.rresolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()
+                resolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()
             found2?.let {
                 className = it
             }
