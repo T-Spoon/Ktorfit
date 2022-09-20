@@ -16,6 +16,7 @@ import kotlin.reflect.KClass
  * installKtorfitPlugins(ResponseResponseConverterPlugin(),CallResponseConverterPlugin())
  * }
  */
+
 abstract class KtorfitResponseConverterPlugin : HttpClientPlugin<KtorfitResponseConverterPlugin.KtorfitPluginErrorHandler, KtorfitResponseConverterPlugin.KtorfitPluginErrorHandler> {
 
     data class KtorfitPluginErrorHandler(var onError: (Exception) -> Any? = {}, val clazz: KClass<*>)
