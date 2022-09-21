@@ -1,1 +1,0 @@
-Ktorfit is multiplaform library

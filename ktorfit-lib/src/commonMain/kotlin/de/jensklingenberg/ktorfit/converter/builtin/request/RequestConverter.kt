@@ -7,8 +7,8 @@ import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 
 /**
- *
- * WHen not suspend
+ * RequestConverter can be used when you don`t want to make
+ * a function in your interface _suspend_.
  */
 interface RequestConverter : CoreRequestConverter {
 

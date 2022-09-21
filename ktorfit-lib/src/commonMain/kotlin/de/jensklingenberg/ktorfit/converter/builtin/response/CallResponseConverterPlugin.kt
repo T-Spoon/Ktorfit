@@ -5,8 +5,7 @@ import de.jensklingenberg.ktorfit.Callback
 import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 
-class CallResponseConverterPlugin() : KtorfitResponseConverterPlugin() {
-
+class CallResponseConverterPlugin : ResponseConverterPlugin() {
 
     override fun pluginForClass() = Call::class
 
@@ -24,7 +23,7 @@ class CallResponseConverterPlugin() : KtorfitResponseConverterPlugin() {
         return "CallPlugin"
     }
 
-    override fun onErrorReturn(exception: Exception) : Any?{
+    override fun onErrorReturn(exception: Exception) : Any {
         val call = object : Call<Any> {
             override fun onExecute(callBack: Callback<Any>) {
                     callBack.onError(exception)

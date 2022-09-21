@@ -4,6 +4,7 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.squareup.kotlinpoet.KModifier
 
 /**
+ * @param name of the interface that contains annotations
  * @param superClasses List of qualifiedNames of interface that a Ktorfit interface extends
  */
 data class ClassData(

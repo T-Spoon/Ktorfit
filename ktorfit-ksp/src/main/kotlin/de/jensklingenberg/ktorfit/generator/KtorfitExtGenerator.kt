@@ -31,6 +31,11 @@ fun generateKtorfitExtClass(
     }
 
 
+    /**
+     * com.example.api.ExampleApi::class ->{
+     * this.createExampleApi() as T
+     * }
+     */
     val whenCaseStatements = classDataList.joinToString("") {
         val packageName = it.packageName
         val className = it.name

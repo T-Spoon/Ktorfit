@@ -243,7 +243,7 @@ You can use Call<T> to receive the response in a Callback.
 You can also add your own Converter. You just need to implement RequestConverter
 
 ```kotlin
-class OwnResponseConverter : RequestConverter {
+class MyOwnResponseConverter : RequestConverter {
    ...
 ```
 
@@ -254,9 +254,22 @@ class OwnResponseConverter : RequestConverter {
 Let`s say you want to request a list of Comments
 
 ```kotlin
-val client = HttpClient {
-    installKtorfitPlugins(ResponseResponseConverterPlugin(), CallResponseConverterPlugin())
+@GET("posts/{postId}/comments")
+suspend fun getCommentsByPostId(@Path("postId") postId: Int): List<Comment>
+```
 
+```kotlin
+@GET("posts/{postId}/comments")
+suspend fun getCommentsByPostId(@Path("postId") postId: Int): Response<List<Comment>>
+```
+
+```kotlin
+class MyOwnRequestConverter : RequestConverter 
+```
+
+```kotlin
+val client = HttpClient {
+    installKtorfitPlugins(MyOwnRequestConverter())
 }
 ```
 
