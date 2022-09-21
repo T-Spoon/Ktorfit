@@ -67,51 +67,55 @@ fun getFunctionDataList(
 
         val functionAnnotationList = mutableListOf<FunctionAnnotation>()
 
-        with(funcDeclaration) {
-            if (funcDeclaration.typeParameters.isNotEmpty()) {
+        funcDeclaration.getMultipartAnnotation()?.let {
+            functionAnnotationList.add(it)
+        }
+
+        if (funcDeclaration.typeParameters.isNotEmpty()) {
+            logger.ktorfitError(
+                KtorfitError.FUNCTION_OR_PARAMETERS_TYPES_MUST_NOT_INCLUDE_ATYPE_VARIABLE_OR_WILDCARD,
+                funcDeclaration
+            )
+        }
+
+        funcDeclaration.getHeadersAnnotation()?.let { headers ->
+            headers.path.forEach {
+                //Check if headers are in valid format
+                try {
+                    val (key, value) = it.split(":")
+                } catch (exception: Exception) {
+                    logger.ktorfitError(HEADERS_VALUE_MUST_BE_IN_FORM + it, funcDeclaration)
+                }
+            }
+            functionAnnotationList.add(headers)
+        }
+
+        funcDeclaration.getFormUrlEncodedAnnotation()?.let { formUrlEncoded ->
+            val isWithoutFieldOrFieldMap =
+                functionParameters.none { it.hasAnnotation<Field>() || it.hasAnnotation<FieldMap>() }
+            if (isWithoutFieldOrFieldMap) {
                 logger.ktorfitError(
-                    KtorfitError.FUNCTION_OR_PARAMETERS_TYPES_MUST_NOT_INCLUDE_ATYPE_VARIABLE_OR_WILDCARD,
+                    KtorfitError.FORM_ENCODED_METHOD_MUST_CONTAIN_AT_LEAST_ONE_FIELD_OR_FIELD_MAP,
                     funcDeclaration
                 )
             }
 
-            this.getHeadersAnnotation()?.let { headers ->
-                headers.path.forEach {
-                    //Check if headers are in valid format
-
-                    try {
-                        val (key, value) = it.split(":")
-                    } catch (exception: Exception) {
-                        logger.ktorfitError(HEADERS_VALUE_MUST_BE_IN_FORM + it, funcDeclaration)
-                    }
-                }
-                functionAnnotationList.add(headers)
+            if (funcDeclaration.getMultipartAnnotation() != null) {
+                logger.ktorfitError(ONLY_ONE_ENCODING_ANNOTATION_IS_ALLOWED, funcDeclaration)
             }
 
-            this.getFormUrlEncodedAnnotation()?.let { formUrlEncoded ->
-                if (functionParameters.none { it.hasAnnotation<Field>() || it.hasAnnotation<FieldMap>() }) {
-                    logger.ktorfitError(
-                        KtorfitError.FORM_ENCODED_METHOD_MUST_CONTAIN_AT_LEAST_ONE_FIELD_OR_FIELD_MAP,
-                        funcDeclaration
-                    )
-                }
+            functionAnnotationList.add(formUrlEncoded)
+        }
 
-                functionAnnotationList.add(formUrlEncoded)
+        funcDeclaration.getStreamingAnnotation()?.let { streaming ->
+            val returnsHttpStatement = returnType.name == "HttpStatement"
+            if (!returnsHttpStatement) {
+                logger.ktorfitError(
+                    FOR_STREAMING_THE_RETURN_TYPE_MUST_BE_HTTP_STATEMENT,
+                    funcDeclaration
+                )
             }
-
-            this.getStreamingAnnotation()?.let { streaming ->
-                if (returnType.name != "HttpStatement") {
-                    logger.ktorfitError(
-                        FOR_STREAMING_THE_RETURN_TYPE_MUST_BE_HTTP_STATEMENT,
-                        funcDeclaration
-                    )
-                }
-                functionAnnotationList.add(streaming)
-            }
-
-            this.getMultipartAnnotation()?.let {
-                functionAnnotationList.add(it)
-            }
+            functionAnnotationList.add(streaming)
         }
 
         val httpMethodAnnoList = getHttpMethodAnnotations(funcDeclaration)
@@ -125,11 +129,13 @@ fun getFunctionDataList(
                 funcDeclaration)
         }
 
-        val httpMethodAnno = httpMethodAnnoList.first()
+        val firstHttpMethodAnnotation = httpMethodAnnoList.first()
 
-        if (httpMethodAnno.path.isEmpty() && functionParameters.none { it.hasAnnotation<Url>() }) {
+        val isEmptyHttpPathWithoutUrlAnnotation =
+            firstHttpMethodAnnotation.path.isEmpty() && functionParameters.none { it.hasAnnotation<Url>() }
+        if (isEmptyHttpPathWithoutUrlAnnotation) {
             logger.ktorfitError(
-                MISSING_EITHER_KEYWORD_URL_OrURL_PARAMETER(httpMethodAnno.httpMethod.keyword),
+                MISSING_EITHER_KEYWORD_URL_OrURL_PARAMETER(firstHttpMethodAnnotation.httpMethod.keyword),
                 funcDeclaration
             )
         }
@@ -139,10 +145,10 @@ fun getFunctionDataList(
                 funcDeclaration)
         }
 
-        when (httpMethodAnno.httpMethod) {
+        when (firstHttpMethodAnnotation.httpMethod) {
             HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH -> {}
             else -> {
-                if (httpMethodAnno is CustomHttp && httpMethodAnno.hasBody) {
+                if (firstHttpMethodAnnotation is CustomHttp && firstHttpMethodAnnotation.hasBody) {
                     //Do nothing
                 } else if (functionParameters.any { it.hasAnnotation<Body>() }) {
                     logger.ktorfitError(NON_BODY_HTTP_METHOD_CANNOT_CONTAIN_BODY, funcDeclaration)
@@ -164,16 +170,16 @@ fun getFunctionDataList(
             }
         }
 
-        if (functionParameters.any { it.hasAnnotation<Path>() } && httpMethodAnno.path.isEmpty()) {
+        if (functionParameters.any { it.hasAnnotation<Path>() } && firstHttpMethodAnnotation.path.isEmpty()) {
             logger.ktorfitError(
-                PATH_CAN_ONLY_BE_USED_WITH_RELATIVE_URL_ON + "@${httpMethodAnno.httpMethod.keyword}",
+                PATH_CAN_ONLY_BE_USED_WITH_RELATIVE_URL_ON + "@${firstHttpMethodAnnotation.httpMethod.keyword}",
                 funcDeclaration
             )
         }
 
         functionParameters.filter { it.hasAnnotation<Path>() }.forEach {
             val pathAnnotation = it.findAnnotationOrNull<Path>()
-            if (!httpMethodAnno.path.contains("{${pathAnnotation?.value ?: ""}}")) {
+            if (!firstHttpMethodAnnotation.path.contains("{${pathAnnotation?.value ?: ""}}")) {
                 logger.ktorfitError(
                     MISSING_X_IN_RELATIVE_URL_PATH(pathAnnotation?.value ?: ""),
                     funcDeclaration
@@ -181,17 +187,13 @@ fun getFunctionDataList(
             }
         }
 
-        if (funcDeclaration.getFormUrlEncodedAnnotation() != null && funcDeclaration.getMultipartAnnotation() != null) {
-            logger.ktorfitError(ONLY_ONE_ENCODING_ANNOTATION_IS_ALLOWED, funcDeclaration)
-        }
-
         if (functionParameters.any { it.hasAnnotation<Url>() }) {
             if (functionParameters.filter { it.hasAnnotation<Url>() }.size > 1) {
                 logger.ktorfitError(MULTIPLE_URL_METHOD_ANNOTATIONS_FOUND, funcDeclaration)
             }
-            if (httpMethodAnno.path.isNotEmpty()) {
+            if (firstHttpMethodAnnotation.path.isNotEmpty()) {
                 logger.ktorfitError(
-                    URL_CAN_ONLY_BE_USED_WITH_EMPY(httpMethodAnno.httpMethod.keyword),
+                    URL_CAN_ONLY_BE_USED_WITH_EMPY(firstHttpMethodAnnotation.httpMethod.keyword),
                     funcDeclaration
                 )
             }
@@ -215,7 +217,7 @@ fun getFunctionDataList(
             funcDeclaration.isSuspend,
             functionParameters,
             functionAnnotationList,
-            httpMethodAnno
+            firstHttpMethodAnnotation
         )
 
     }
