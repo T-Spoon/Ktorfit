@@ -1,4 +1,4 @@
-package de.jensklingenberg.ktorfit.converter.builtin.response
+package de.jensklingenberg.ktorfit.converter.response
 
 import de.jensklingenberg.ktorfit.internal.InternalKtorfitApi
 import de.jensklingenberg.ktorfit.upperBoundType
@@ -32,7 +32,7 @@ abstract class ResponseConverter : HttpClientPlugin<ResponseConverter.KtorfitPlu
      * Don't override this
      */
     @InternalKtorfitApi
-    override val key: AttributeKey<ResponseConverter.KtorfitPluginErrorHandler> = AttributeKey("Ktorfit"+getKey())
+    override val key: AttributeKey<KtorfitPluginErrorHandler> = AttributeKey("Ktorfit"+getKey())
 
     private var foundCall = false
     private var exceptionFound: Exception? = null
@@ -52,11 +52,11 @@ abstract class ResponseConverter : HttpClientPlugin<ResponseConverter.KtorfitPlu
      */
     abstract fun pluginForClass(): KClass<*>
 
-    override fun prepare(block: ResponseConverter.KtorfitPluginErrorHandler.() -> Unit): KtorfitPluginErrorHandler {
+    override fun prepare(block: KtorfitPluginErrorHandler.() -> Unit): KtorfitPluginErrorHandler {
         return KtorfitPluginErrorHandler ({ er -> onErrorReturn(er) },pluginForClass())
     }
 
-    override fun install(plugin: ResponseConverter.KtorfitPluginErrorHandler, scope: HttpClient) {
+    override fun install(plugin: KtorfitPluginErrorHandler, scope: HttpClient) {
         scope.responsePipeline.intercept(HttpResponsePipeline.Receive) { (info, body) ->
             val result = if (info.type == pluginForClass()) {
                 foundCall = true

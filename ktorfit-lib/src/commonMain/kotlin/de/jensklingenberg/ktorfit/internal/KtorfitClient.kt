@@ -1,7 +1,7 @@
 package de.jensklingenberg.ktorfit.internal
 
 import de.jensklingenberg.ktorfit.Ktorfit
-import de.jensklingenberg.ktorfit.converter.builtin.response.ResponseConverter
+import de.jensklingenberg.ktorfit.converter.response.ResponseConverter
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*

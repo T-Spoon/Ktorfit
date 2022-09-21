@@ -1,7 +1,8 @@
-package de.jensklingenberg.ktorfit.converter.builtin.response
+package de.jensklingenberg.ktorfit.converter.builtin
 
 import de.jensklingenberg.ktorfit.Call
 import de.jensklingenberg.ktorfit.Callback
+import de.jensklingenberg.ktorfit.converter.response.ResponseConverter
 import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 

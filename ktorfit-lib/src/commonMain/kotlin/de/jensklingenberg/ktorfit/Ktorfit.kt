@@ -1,8 +1,8 @@
 package de.jensklingenberg.ktorfit
 
 import de.jensklingenberg.ktorfit.Strings.Companion.EXPECTED_URL_SCHEME
-import de.jensklingenberg.ktorfit.converter.builtin.request.RequestConverter
-import de.jensklingenberg.ktorfit.converter.builtin.response.ResponseConverter
+import de.jensklingenberg.ktorfit.converter.request.RequestConverter
+import de.jensklingenberg.ktorfit.converter.response.ResponseConverter
 import io.ktor.client.*
 import io.ktor.client.engine.*
 

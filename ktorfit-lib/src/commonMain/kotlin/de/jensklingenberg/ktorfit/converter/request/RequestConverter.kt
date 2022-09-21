@@ -1,7 +1,7 @@
-package de.jensklingenberg.ktorfit.converter.builtin.request
+package de.jensklingenberg.ktorfit.converter.request
 
 import de.jensklingenberg.ktorfit.Ktorfit
-import de.jensklingenberg.ktorfit.converter.builtin.request.CoreRequestConverter
+import de.jensklingenberg.ktorfit.converter.request.CoreRequestConverter
 import de.jensklingenberg.ktorfit.internal.TypeData
 import io.ktor.client.statement.*
 import io.ktor.util.reflect.*

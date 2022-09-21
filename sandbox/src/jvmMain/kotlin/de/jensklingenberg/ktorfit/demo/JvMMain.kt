@@ -5,9 +5,9 @@ import com.example.api.JsonPlaceHolderApi
 import com.example.model.Post
 import com.example.model.jsonPlaceHolderApi
 import de.jensklingenberg.ktorfit.Callback
-import de.jensklingenberg.ktorfit.converter.builtin.response.CallResponseConverter
-import de.jensklingenberg.ktorfit.converter.builtin.request.FlowRequestConverter
-import de.jensklingenberg.ktorfit.converter.builtin.request.CallRequestConverter
+import de.jensklingenberg.ktorfit.converter.builtin.CallResponseConverter
+import de.jensklingenberg.ktorfit.converter.builtin.FlowRequestConverter
+import de.jensklingenberg.ktorfit.converter.builtin.CallRequestConverter
 import de.jensklingenberg.ktorfit.create
 import de.jensklingenberg.ktorfit.installKtorfitPlugins
 import de.jensklingenberg.ktorfit.ktorfit

@@ -1,8 +1,8 @@
 package com.example.model
 
 import com.example.api.JsonPlaceHolderApi
-import de.jensklingenberg.ktorfit.converter.builtin.request.FlowRequestConverter
-import de.jensklingenberg.ktorfit.converter.builtin.request.CallRequestConverter
+import de.jensklingenberg.ktorfit.converter.builtin.FlowRequestConverter
+import de.jensklingenberg.ktorfit.converter.builtin.CallRequestConverter
 import de.jensklingenberg.ktorfit.create
 import de.jensklingenberg.ktorfit.ktorfit
 import io.ktor.client.*

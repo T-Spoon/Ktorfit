@@ -1,8 +1,9 @@
-package de.jensklingenberg.ktorfit.converter.builtin.request
+package de.jensklingenberg.ktorfit.converter.builtin
 
 import de.jensklingenberg.ktorfit.Call
 import de.jensklingenberg.ktorfit.Callback
 import de.jensklingenberg.ktorfit.Ktorfit
+import de.jensklingenberg.ktorfit.converter.request.RequestConverter
 import de.jensklingenberg.ktorfit.internal.TypeData
 import io.ktor.client.call.*
 import io.ktor.client.statement.*

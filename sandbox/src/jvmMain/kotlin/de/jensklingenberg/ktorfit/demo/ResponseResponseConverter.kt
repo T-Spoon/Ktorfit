@@ -1,7 +1,7 @@
 package de.jensklingenberg.ktorfit.demo
 
 import com.example.api.Response
-import de.jensklingenberg.ktorfit.converter.builtin.response.ResponseConverter
+import de.jensklingenberg.ktorfit.converter.response.ResponseConverter
 import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 

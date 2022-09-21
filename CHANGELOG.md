@@ -1,6 +1,18 @@
 1.0.0-beta14 (Not released)
 ========================================
-- Types for Queries can now be nullable, null values will be ignored in queries
+- Types for Queries can now be nullable, queries with null values will be ignored in requests
+
+BREAKING CHANGES:
+- We needed to change how converters work and the naming:
+
+- SuspendResponseConverter:
+- is now called RequestConverter
+- the wrapSuspendResponse is now called convertRequest.
+- returnTypeName is replaced through typeData, you can use typeData.qualifiedName to get the same value as returnTypeName
+
+- ResponseConverters are now implemented as Ktor plugins, 
+
+
 
 1.0.0-beta13 (10-09-2022)
 ========================================

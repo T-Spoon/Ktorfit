@@ -1,4 +1,4 @@
-package de.jensklingenberg.ktorfit.converter.builtin.request
+package de.jensklingenberg.ktorfit.converter.request
 
 import de.jensklingenberg.ktorfit.internal.TypeData
 
