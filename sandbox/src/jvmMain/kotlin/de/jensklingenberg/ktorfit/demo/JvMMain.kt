@@ -5,11 +5,11 @@ import com.example.api.JsonPlaceHolderApi
 import com.example.model.Post
 import com.example.model.jsonPlaceHolderApi
 import de.jensklingenberg.ktorfit.Callback
-import de.jensklingenberg.ktorfit.converter.builtin.response.KtorfitResponseConverterPlugin
 import de.jensklingenberg.ktorfit.converter.builtin.response.CallResponseConverterPlugin
 import de.jensklingenberg.ktorfit.converter.builtin.request.FlowRequestConverter
-import de.jensklingenberg.ktorfit.converter.builtin.request.KtorfitCallRequestConverter
+import de.jensklingenberg.ktorfit.converter.builtin.request.CallRequestConverter
 import de.jensklingenberg.ktorfit.create
+import de.jensklingenberg.ktorfit.installKtorfitPlugins
 import de.jensklingenberg.ktorfit.ktorfit
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -39,11 +39,6 @@ val jvmClient = HttpClient {
 
 }
 
-private fun HttpClientConfig<*>.installKtorfitPlugins(vararg responsePlugin: KtorfitResponseConverterPlugin) {
-    responsePlugin.forEach {
-        this.install(it)
-    }
-}
 
 
 val jvmKtorfit = ktorfit {
@@ -52,7 +47,7 @@ val jvmKtorfit = ktorfit {
     requestConverter(
         FlowRequestConverter(),
         RxRequestConverter(),
-        KtorfitCallRequestConverter()
+        CallRequestConverter()
     )
 }
 

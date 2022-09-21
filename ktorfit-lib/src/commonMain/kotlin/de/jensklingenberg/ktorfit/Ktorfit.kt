@@ -1,7 +1,8 @@
 package de.jensklingenberg.ktorfit
 
 import de.jensklingenberg.ktorfit.Strings.Companion.EXPECTED_URL_SCHEME
-import de.jensklingenberg.ktorfit.converter.RequestConverter
+import de.jensklingenberg.ktorfit.converter.builtin.request.RequestConverter
+import de.jensklingenberg.ktorfit.converter.builtin.response.KtorfitResponseConverterPlugin
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.statement.*
@@ -16,11 +17,7 @@ class Ktorfit private constructor(
     val requestConverters: Set<RequestConverter>,
     ) {
 
-    @Deprecated(
-        "Use Ktorfit.Builder()",
-        replaceWith = ReplaceWith("Ktorfit.Builder().baseUrl(baseUrl).httpClient(httpClient).build()")
-    )
-    constructor(
+    private constructor(
         baseUrl: String,
         httpClient: HttpClient = HttpClient()
     ) : this(baseUrl, httpClient, emptySet())
@@ -146,3 +143,12 @@ inline fun <reified T> Ktorfit.create(): T {
     throw NotImplementedError("Ktorfit didn't generate Code for " + T::class.simpleName + " You need to apply the KSP Plugin")
 }
 
+/**
+ * Use this function to install KtorfitPlugins to your HTTP
+ *
+ */
+fun HttpClientConfig<*>.installKtorfitPlugins(vararg responsePlugin: KtorfitResponseConverterPlugin) {
+    responsePlugin.forEach {
+        this.install(it)
+    }
+}

@@ -1,9 +1,7 @@
 package de.jensklingenberg.ktorfit.model
 
-import KtorfitProcessor
 import com.google.devtools.ksp.getClassDeclarationByName
 import de.jensklingenberg.ktorfit.utils.surroundIfNotEmpty
-import javax.naming.spi.Resolver
 
 //https://kotlinlang.org/docs/packages.html
 fun defaultImports() = listOf(
@@ -19,13 +17,18 @@ fun defaultImports() = listOf(
 
 data class TypeData(val qualifiedName: String, val typeArgs: List<TypeData> = emptyList()) {
     override fun toString(): String {
-        val typeArgumentsText = typeArgs.joinToString { it.toString() }.surroundIfNotEmpty(",listOf(",")")
+        val typeArgumentsText = typeArgs.joinToString { it.toString() }.surroundIfNotEmpty(",listOf(", ")")
         return """TypeData("$qualifiedName"$typeArgumentsText)"""
     }
 }
 
 //TODO: Add test
-fun getMyType(text: String, imports: List<String>, packageName: String,resolver: com.google.devtools.ksp.processing.Resolver): TypeData {
+fun getMyType(
+    text: String,
+    imports: List<String>,
+    packageName: String,
+    resolver: com.google.devtools.ksp.processing.Resolver
+): TypeData {
     val classImports = imports + defaultImports()
     var className = text.substringBefore("<", "")
     if (className.isEmpty()) {
@@ -41,19 +44,18 @@ fun getMyType(text: String, imports: List<String>, packageName: String,resolver:
     val isTypeArgument = type.contains(",")
 
     if (hasTypeArgs) {
-        argumentsTypes.add(getMyType(type, classImports, packageName,resolver))
+        argumentsTypes.add(getMyType(type, classImports, packageName, resolver))
     } else if (isTypeArgument) {
         type.split(",").forEach {
-            argumentsTypes.add(getMyType(it, classImports, packageName,resolver))
+            argumentsTypes.add(getMyType(it, classImports, packageName, resolver))
         }
     } else if (type.isNotEmpty()) {
-        argumentsTypes.add(getMyType(type, classImports, packageName,resolver))
+        argumentsTypes.add(getMyType(type, classImports, packageName, resolver))
     }
 
 
     //Look in package
-    val found = resolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()
-    found?.let {
+    resolver.getClassDeclarationByName("$packageName.$className")?.qualifiedName?.asString()?.let {
         className = it
     }
 

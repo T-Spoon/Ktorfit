@@ -218,7 +218,7 @@ Then you can drop the **suspend** modifier and wrap your return type with Flow<>
 ### Call
 
 ```kotlin
-ktorfit.responseConverter(KtorfitResponseConverter())
+ktorfit.responseConverter(CallRequestConverter())
 ```
 ```kotlin
 @GET("people/{id}/")
@@ -260,7 +260,7 @@ val client = HttpClient {
 }
 ```
 
-### JSON
+## JSON
 Ktorfit doesn't parse JSON. You have to install the Json Feature to the Ktor Client that you add to Ktorfit.
 See here : https://ktor.io/docs/serialization-client.html
 
