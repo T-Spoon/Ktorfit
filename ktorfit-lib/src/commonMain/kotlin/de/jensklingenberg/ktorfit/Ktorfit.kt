@@ -2,10 +2,9 @@ package de.jensklingenberg.ktorfit
 
 import de.jensklingenberg.ktorfit.Strings.Companion.EXPECTED_URL_SCHEME
 import de.jensklingenberg.ktorfit.converter.builtin.request.RequestConverter
-import de.jensklingenberg.ktorfit.converter.builtin.response.ResponseConverterPlugin
+import de.jensklingenberg.ktorfit.converter.builtin.response.ResponseConverter
 import io.ktor.client.*
 import io.ktor.client.engine.*
-import io.ktor.client.statement.*
 
 
 /**
@@ -147,7 +146,7 @@ inline fun <reified T> Ktorfit.create(): T {
  * Use this function to install KtorfitPlugins to your HTTP
  *
  */
-fun HttpClientConfig<*>.installKtorfitPlugins(vararg responsePlugin: ResponseConverterPlugin) {
+fun HttpClientConfig<*>.installKtorfitPlugins(vararg responsePlugin: ResponseConverter) {
     responsePlugin.forEach {
         this.install(it)
     }

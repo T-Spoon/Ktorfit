@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
  * normal KtorPlugin but extend
  */
 
-abstract class ResponseConverterPlugin : HttpClientPlugin<ResponseConverterPlugin.KtorfitPluginErrorHandler, ResponseConverterPlugin.KtorfitPluginErrorHandler> {
+abstract class ResponseConverter : HttpClientPlugin<ResponseConverter.KtorfitPluginErrorHandler, ResponseConverter.KtorfitPluginErrorHandler> {
 
     data class KtorfitPluginErrorHandler(var onError: (Exception) -> Any? = {}, val clazz: KClass<*>)
 
@@ -32,7 +32,7 @@ abstract class ResponseConverterPlugin : HttpClientPlugin<ResponseConverterPlugi
      * Don't override this
      */
     @InternalKtorfitApi
-    override val key: AttributeKey<ResponseConverterPlugin.KtorfitPluginErrorHandler> = AttributeKey("Ktorfit"+getKey())
+    override val key: AttributeKey<ResponseConverter.KtorfitPluginErrorHandler> = AttributeKey("Ktorfit"+getKey())
 
     private var foundCall = false
     private var exceptionFound: Exception? = null
@@ -52,11 +52,11 @@ abstract class ResponseConverterPlugin : HttpClientPlugin<ResponseConverterPlugi
      */
     abstract fun pluginForClass(): KClass<*>
 
-    override fun prepare(block: ResponseConverterPlugin.KtorfitPluginErrorHandler.() -> Unit): KtorfitPluginErrorHandler {
+    override fun prepare(block: ResponseConverter.KtorfitPluginErrorHandler.() -> Unit): KtorfitPluginErrorHandler {
         return KtorfitPluginErrorHandler ({ er -> onErrorReturn(er) },pluginForClass())
     }
 
-    override fun install(plugin: ResponseConverterPlugin.KtorfitPluginErrorHandler, scope: HttpClient) {
+    override fun install(plugin: ResponseConverter.KtorfitPluginErrorHandler, scope: HttpClient) {
         scope.responsePipeline.intercept(HttpResponsePipeline.Receive) { (info, body) ->
             val result = if (info.type == pluginForClass()) {
                 foundCall = true

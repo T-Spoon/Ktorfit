@@ -36,7 +36,7 @@ interface ExampleApi {
 Now we add a function that will be used to make our request. The @GET annotation will tell Ktorfit that this a GET request. The value of @GET is the relative URL path that will be appended to the base url which we set later.
 
 An interface used for Ktorfit needs to have a Http method annotation on every function.
-Because Ktor relies on Coroutines by default your functions need to have the **suspend** modifier. Alternatively you can use [#Flow](#flow) or Call (see below)
+Because Ktor relies on Coroutines by default your functions need to have the **suspend** modifier. Alternatively you can use [#Flow](./requestconverter.md#flow) or [Call](./requestconverter.md#call)
 
 
 ```kotlin
@@ -187,131 +187,12 @@ exampleApi.upload("Ktor logo",multipart)
 All your parameters annotated with @Part wil be combined and send as MultiPartFormDataContent
 
 ## RequestConverter
-Because Ktor relies on Coroutines by default your functions need to have the suspend modifier. Alternatively you can use #Flow or Call
-
-To change this you can use a RequestConverter:
-
-You can add RequestConverter on your Ktorfit object.
+See documentation [Here](./requestconverter.md)
 
 
+## ResponseConverter
 
-```kotlin
-ktorfit.requestConverter(FlowRequestConverter())
-```
-
-### Flow
-Ktorfit has support for Kotlin Flow. You need add the FlowRequestConverter() to your Ktorfit instance.
-
-```kotlin
-ktorfit.requestConverter(FlowRequestConverter())
-```
-
-```kotlin
-
-@GET("comments")
-fun getCommentsById(@Query("postId") postId: String): Flow<List<Comment>>
-```
-
-Then you can drop the **suspend** modifier and wrap your return type with Flow<>
-
-
-### Call
-
-```kotlin
-ktorfit.responseConverter(CallRequestConverter())
-```
-```kotlin
-@GET("people/{id}/")
-fun getPersonById(@Path("id") peopleId: Int): Call<People>
-```
-
-```kotlin
-exampleApi.getPersonById(3).onExecute(object : Callback<People>{
-    override fun onResponse(call: People, response: HttpResponse) {
-        //Do something with Response
-    }
-
-    override fun onError(exception: Exception) {
-        //Do something with exception
-    }
-})
-```
-
-You can use Call<T> to receive the response in a Callback.
-
-### Your own
-You can also add your own Converter. You just need to implement RequestConverter. Inside the converter you need to handle 
-the conversion from **suspend** to your async code.
-
-```kotlin
-class MyOwnResponseConverter : RequestConverter {
-   ...
-```
-
-
-
-## ResponseConverterPlugin
-
-Let`s say you have a function that requests a list of comments
-
-```kotlin
-@GET("posts/{postId}/comments")
-suspend fun getCommentsByPostId(@Path("postId") postId: Int): List<Comment>
-```
-
-But now you want to directly wrap your comment list in your data holder class e.g. "MyOwnResponse"
-
-```kotlin
-sealed class MyOwnResponse<T> {
-    data class Success<T>(val data: T) : Response<T>()
-    class Error(val ex:Throwable) : Response<Nothing>()
-
-    companion object {
-        fun <T> success(data: T) = Success(data)
-        fun error(ex: Throwable) = Error(ex)
-    }
-}
-```
-
-To enable that, you have to implement a ResponseConverterPlugin. This class will be used to wrap the Ktor response
-inside your wrapper class.
-
-```kotlin
-class MyOwnResponseConverterPlugin : ResponseConverterPlugin
-    
-   //The identifier of your plugin. Must be unique
-    override fun getKey(): String {
-        return "ResponsePlugin"
-    }
-    
-    //This will convert T to MyOwnResponse<T>
-    override fun convert(info: TypeInfo, body: Any, response: HttpResponse): Pair<TypeInfo, Any> {
-        val newInfo = TypeInfo(pluginForClass(), info.reifiedType, info.kotlinType)
-        val call = MyOwnResponse.success(body)
-        return newInfo to call
-    }
-    
-    override fun pluginForClass() = MyOwnResponse::class
-    
-    override fun onErrorReturn(exception: Exception): Any? {
-        return MyOwnResponse.error(exception)
-    }
-}
-```
-
-Now you need to install that plugin inside the configuration of your http client
-
-```kotlin
-val client = HttpClient {
-    installKtorfitPlugins(MyOwnResponseConverterPlugin())
-}
-```
-
-Now add MyOwnResponse to your function
-```kotlin
-@GET("posts/{postId}/comments")
-suspend fun getCommentsByPostId(@Path("postId") postId: Int): MyOwnResponse<List<Comment>>
-```
+See documentation [Here](./responseconverter.md)
 
 ## JSON
 Ktorfit doesn't parse JSON. You have to install the Json Feature to the Ktor Client that you add to Ktorfit.

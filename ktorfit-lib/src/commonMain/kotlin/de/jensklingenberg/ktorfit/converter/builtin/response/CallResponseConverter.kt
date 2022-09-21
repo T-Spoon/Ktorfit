@@ -5,7 +5,7 @@ import de.jensklingenberg.ktorfit.Callback
 import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 
-class CallResponseConverterPlugin : ResponseConverterPlugin() {
+class CallResponseConverter : ResponseConverter() {
 
     override fun pluginForClass() = Call::class
 

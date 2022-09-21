@@ -1,11 +1,11 @@
 package de.jensklingenberg.ktorfit.demo
 
 import com.example.api.Response
-import de.jensklingenberg.ktorfit.converter.builtin.response.ResponseConverterPlugin
+import de.jensklingenberg.ktorfit.converter.builtin.response.ResponseConverter
 import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 
-class ResponseResponseConverterPlugin() : ResponseConverterPlugin() {
+class ResponseResponseConverter() : ResponseConverter() {
     override fun getKey(): String {
         return "ResponsePlugin"
     }

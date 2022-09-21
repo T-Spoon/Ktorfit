@@ -5,7 +5,7 @@ import com.example.api.JsonPlaceHolderApi
 import com.example.model.Post
 import com.example.model.jsonPlaceHolderApi
 import de.jensklingenberg.ktorfit.Callback
-import de.jensklingenberg.ktorfit.converter.builtin.response.CallResponseConverterPlugin
+import de.jensklingenberg.ktorfit.converter.builtin.response.CallResponseConverter
 import de.jensklingenberg.ktorfit.converter.builtin.request.FlowRequestConverter
 import de.jensklingenberg.ktorfit.converter.builtin.request.CallRequestConverter
 import de.jensklingenberg.ktorfit.create
@@ -31,7 +31,7 @@ val jvmClient = HttpClient {
         json(Json { isLenient = true; ignoreUnknownKeys = true })
     }
 
-    installKtorfitPlugins(ResponseResponseConverterPlugin(), CallResponseConverterPlugin())
+    installKtorfitPlugins(ResponseResponseConverter(), CallResponseConverter())
 
     this.developmentMode = true
     expectSuccess = false
