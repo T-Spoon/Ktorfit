@@ -1,4 +1,4 @@
-package de.jensklingenberg.ktorfit.generator
+package de.jensklingenberg.ktorfit.parser
 
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier

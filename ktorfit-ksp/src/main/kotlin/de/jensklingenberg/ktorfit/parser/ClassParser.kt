@@ -9,27 +9,9 @@ import com.squareup.kotlinpoet.ksp.toKModifier
 import de.jensklingenberg.ktorfit.model.*
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.INTERFACE_NEEDS_TO_HAVE_A_PACKAGE
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.INTERNAL_INTERFACES_ARE_NOT_SUPPORTED
+import de.jensklingenberg.ktorfit.utils.getFileImports
 import de.jensklingenberg.ktorfit.utils.resolveTypeName
 import java.io.File
-
-
-/**
- * Gets the imports of a class by reading the imports from the file
- * which contains the class
- *  TODO: Find better way to get imports
- */
-private fun getImports(ksClassDeclaration: KSClassDeclaration): List<String> {
-    val importList =
-        File(ksClassDeclaration.containingFile!!.filePath)
-            .readLines()
-            .filter { it.trimStart().startsWith("import") }
-            .toMutableSet()
-
-    importList.add(ktorfitClass.packageName + "." + ktorfitClass.name)
-    importList.add("de.jensklingenberg.ktorfit.internal.*")
-
-    return importList.map { it.removePrefix("import ") }
-}
 
 /**
  * Convert a [KSClassDeclaration] to [ClassData]
@@ -39,7 +21,7 @@ private fun getImports(ksClassDeclaration: KSClassDeclaration): List<String> {
  */
 fun toClassData(ksClassDeclaration: KSClassDeclaration, logger: KSPLogger): ClassData {
 
-    val imports = getImports(ksClassDeclaration)
+    val imports = ksClassDeclaration.getFileImports()
     val packageName = ksClassDeclaration.packageName.asString()
     val className = ksClassDeclaration.simpleName.asString()
 
@@ -79,11 +61,11 @@ fun toClassData(ksClassDeclaration: KSClassDeclaration, logger: KSPLogger): Clas
     }
 
     return ClassData(
-        className,
-        packageName,
-        functionDataList,
-        imports,
-        supertypes,
-        properties,
+        name = className,
+        packageName = packageName,
+        functions = functionDataList,
+        imports = imports,
+        superClasses = supertypes,
+        properties = properties,
         modifiers = ksClassDeclaration.modifiers.mapNotNull { it.toKModifier() })
 }

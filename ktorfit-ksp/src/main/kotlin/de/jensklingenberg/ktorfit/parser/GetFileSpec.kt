@@ -1,4 +1,4 @@
-package de.jensklingenberg.ktorfit.generator
+package de.jensklingenberg.ktorfit.parser
 
 import com.squareup.kotlinpoet.*
 import de.jensklingenberg.ktorfit.model.ClassData
@@ -10,7 +10,7 @@ private const val WILDCARDIMPORT = "WILDCARDIMPORT"
 /**
  * Transform a [ClassData] to a [FileSpec] for KotlinPoet
  */
-fun getFileSource(classData: ClassData): String {
+fun getImplClassFileSource(classData: ClassData): String {
 
     /**
      * public fun Ktorfit.createExampleApi(): ExampleApi = _ExampleApiImpl(KtorfitClient(this))

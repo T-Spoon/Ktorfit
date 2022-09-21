@@ -3,6 +3,7 @@ package de.jensklingenberg.ktorfit.generator
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import de.jensklingenberg.ktorfit.model.ClassData
+import de.jensklingenberg.ktorfit.parser.getImplClassFileSource
 import java.io.OutputStreamWriter
 
 
@@ -11,7 +12,7 @@ import java.io.OutputStreamWriter
  */
 fun generateImplClass(classDataList: List<ClassData>, codeGenerator: CodeGenerator) {
     classDataList.forEach { classData ->
-        val fileSource = getFileSource(classData)
+        val fileSource = getImplClassFileSource(classData)
 
         val packageName = classData.packageName
         val className = classData.name

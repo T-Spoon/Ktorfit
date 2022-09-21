@@ -10,6 +10,7 @@ import de.jensklingenberg.ktorfit.model.ClassData
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.COULD_NOT_FIND_ANY_KTORFIT_ANNOTATIONS_IN_CLASS
 import de.jensklingenberg.ktorfit.model.ktorfitClass
 import de.jensklingenberg.ktorfit.model.ktorfitExtClass
+import de.jensklingenberg.ktorfit.parser.addImports
 import java.io.OutputStreamWriter
 
 /**
