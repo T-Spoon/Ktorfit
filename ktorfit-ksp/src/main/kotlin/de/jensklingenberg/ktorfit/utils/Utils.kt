@@ -117,3 +117,8 @@ fun KSClassDeclaration.getFileImports(): List<String> {
 
     return importList.map { it.removePrefix("import ") }
 }
+
+
+fun String.removeWhiteSpaces(): String {
+    return this.replace("\\s".toRegex(), "")
+}

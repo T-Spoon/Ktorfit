@@ -6,11 +6,8 @@ import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.TypeVariableName
-import de.jensklingenberg.ktorfit.model.ClassData
+import de.jensklingenberg.ktorfit.model.*
 import de.jensklingenberg.ktorfit.model.KtorfitError.Companion.COULD_NOT_FIND_ANY_KTORFIT_ANNOTATIONS_IN_CLASS
-import de.jensklingenberg.ktorfit.model.ktorfitClass
-import de.jensklingenberg.ktorfit.model.ktorfitExtClass
-import de.jensklingenberg.ktorfit.parser.addImports
 import java.io.OutputStreamWriter
 
 /**
@@ -70,4 +67,20 @@ fun generateKtorfitExtClass(
                 writer.write(fileSpec.toString())
             }
         }
+}
+
+
+fun FileSpec.Builder.addImports(imports: List<String>): FileSpec.Builder {
+
+    imports.forEach {
+        /**
+         * Wildcard imports are not allowed by KotlinPoet, as a workaround * is replaced with WILDCARDIMPORT, and it will be replaced again
+         * after Kotlin Poet generated the source code
+         */
+        val packageName = it.substringBeforeLast(".")
+        val className = it.substringAfterLast(".").replace("*", WILDCARDIMPORT)
+
+        this.addImport(packageName, className)
+    }
+    return this
 }
