@@ -1,8 +1,8 @@
 package de.jensklingenberg.ktorfit
 
 import de.jensklingenberg.ktorfit.Strings.Companion.EXPECTED_URL_SCHEME
-import de.jensklingenberg.ktorfit.converter.request.RequestConverter
 import de.jensklingenberg.ktorfit.converter.ResponseConverter
+import de.jensklingenberg.ktorfit.converter.request.RequestConverter
 import io.ktor.client.*
 import io.ktor.client.engine.*
 
@@ -15,7 +15,7 @@ class Ktorfit private constructor(
     val httpClient: HttpClient = HttpClient(),
     val requestConverters: Set<RequestConverter>,
     val responseConverters: Set<ResponseConverter>,
-    ) {
+) {
 
     /**
      * Builder class for Ktorfit.
@@ -92,21 +92,20 @@ class Ktorfit private constructor(
         }
 
         /**
-         * Use this to add [RequestConverter] or [ResponseConverter] for unsupported return types of requests
+         * Use this to add [RequestConverter] for unsupported return types of requests
          */
         fun requestConverter(vararg converters: RequestConverter) = apply {
             converters.forEach { converter ->
                 this._requestConverter.add(converter)
-
             }
         }
 
-        @Deprecated("")
-        fun responseConverter(vararg converters: de.jensklingenberg.ktorfit.converter.ResponseConverter) = apply {
+        /**
+         * Use this to add [ResponseConverter] for unsupported return types of response
+         */
+        fun responseConverter(vararg converters: ResponseConverter) = apply {
             converters.forEach { converter ->
-                if (converter is ResponseConverter) {
-                    this._responseConverter.add(converter)
-                }
+                this._responseConverter.add(converter)
             }
         }
 
@@ -120,7 +119,7 @@ class Ktorfit private constructor(
          * Creates an instance of Ktorfit with specified baseUrl and HttpClient.
          */
         fun build(): Ktorfit {
-            return Ktorfit(_baseUrl, _httpClient, _requestConverter,_responseConverter)
+            return Ktorfit(_baseUrl, _httpClient, _requestConverter, _responseConverter)
         }
     }
 }

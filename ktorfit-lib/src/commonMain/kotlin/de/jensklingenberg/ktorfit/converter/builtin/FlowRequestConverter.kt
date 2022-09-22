@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.flow
  */
 class FlowRequestConverter : RequestConverter {
 
-    override fun supportedType(returnTypeName: TypeData): Boolean {
-        return returnTypeName.qualifiedName == "kotlinx.coroutines.flow.Flow"
+    override fun supportedType(typeData: TypeData, isSuspend: Boolean): Boolean {
+        return typeData.qualifiedName == "kotlinx.coroutines.flow.Flow"
     }
 
     override fun <RequestType> convertRequest(

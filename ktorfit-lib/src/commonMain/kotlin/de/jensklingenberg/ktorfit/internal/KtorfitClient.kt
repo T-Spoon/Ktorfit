@@ -37,7 +37,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
 
         ktorfit.requestConverters.firstOrNull { converter ->
             converter.supportedType(
-                requestData.returnTypeData
+                requestData.returnTypeData,false
             )
         }?.let { requestConverter ->
             return requestConverter.convertRequest<RequestType?>(
@@ -85,7 +85,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
 
             ktorfit.responseConverters.firstOrNull { converter ->
                 converter.supportedType(
-                    requestData.returnTypeData
+                    requestData.returnTypeData, true
                 )
             }?.let {
                 return it.wrapResponse<PRequest>(

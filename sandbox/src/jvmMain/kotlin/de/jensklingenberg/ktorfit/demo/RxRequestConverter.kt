@@ -14,9 +14,9 @@ import kotlinx.coroutines.launch
 
 class RxRequestConverter : RequestConverter {
 
-    override fun supportedType(returnTypeName: TypeData): Boolean {
+    override fun supportedType(typeData: TypeData, isSuspend: Boolean): Boolean {
         return listOf("io.reactivex.rxjava3.core.Single", "io.reactivex.rxjava3.core.Observable","io.reactivex.rxjava3.core.Completable").contains(
-            returnTypeName.qualifiedName
+            typeData.qualifiedName
         )
     }
 

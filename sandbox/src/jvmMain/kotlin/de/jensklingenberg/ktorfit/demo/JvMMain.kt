@@ -5,7 +5,7 @@ import com.example.api.JsonPlaceHolderApi
 import com.example.model.Comment
 import com.example.model.jsonPlaceHolderApi
 import de.jensklingenberg.ktorfit.Callback
-import de.jensklingenberg.ktorfit.converter.KtorfitCallResponseConverter
+import de.jensklingenberg.ktorfit.converter.builtin.CallResponseConverter
 import de.jensklingenberg.ktorfit.converter.builtin.FlowRequestConverter
 import de.jensklingenberg.ktorfit.converter.builtin.CallRequestConverter
 import de.jensklingenberg.ktorfit.ktorfit
@@ -45,7 +45,7 @@ val jvmKtorfit = ktorfit {
         RxRequestConverter(),
         CallRequestConverter()
     )
-    responseConverter(KtorfitCallResponseConverter())
+    responseConverter(CallResponseConverter())
 }
 
 

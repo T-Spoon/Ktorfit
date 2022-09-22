@@ -17,9 +17,8 @@ import kotlinx.coroutines.launch
  */
 class CallRequestConverter : RequestConverter {
 
-
-    override fun supportedType(returnTypeName: TypeData): Boolean {
-        return returnTypeName.qualifiedName == "de.jensklingenberg.ktorfit.Call"
+    override fun supportedType(typeData: TypeData, isSuspend: Boolean): Boolean {
+        return typeData.qualifiedName == "de.jensklingenberg.ktorfit.Call"
     }
 
     override fun <RequestType> convertRequest(

@@ -6,10 +6,10 @@ interface CoreRequestConverter {
 
     /**
      * Check if this converter supports the return type
-     * @param returnTypeName is the qualified name of the outer type of
+     * @param typeData is the typeData of the outer type of
      * the return type. e.g. for Flow<String> it will be kotlinx.coroutines.flow.Flow
      */
-    fun supportedType(returnTypeName: TypeData): Boolean
+    fun supportedType(typeData: TypeData, isSuspend: Boolean): Boolean
 
 }
 

@@ -1,15 +1,17 @@
-package de.jensklingenberg.ktorfit.converter
+package de.jensklingenberg.ktorfit.converter.builtin
 
 import de.jensklingenberg.ktorfit.Call
 import de.jensklingenberg.ktorfit.Callback
 import de.jensklingenberg.ktorfit.Ktorfit
+import de.jensklingenberg.ktorfit.converter.ResponseConverter
 import de.jensklingenberg.ktorfit.internal.TypeData
 import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-class KtorfitCallResponseConverter : ResponseConverter{
+class CallResponseConverter : ResponseConverter {
+
     override fun <RequestType> wrapResponse(
         typeData: TypeData,
         requestFunction: suspend () -> Pair<TypeInfo, HttpResponse>,
@@ -36,7 +38,7 @@ class KtorfitCallResponseConverter : ResponseConverter{
         }
     }
 
-    override fun supportedType(returnTypeName: TypeData): Boolean {
-        return returnTypeName.qualifiedName == "de.jensklingenberg.ktorfit.Call"
+    override fun supportedType(typeData: TypeData, isSuspend: Boolean): Boolean {
+        return typeData.qualifiedName == "de.jensklingenberg.ktorfit.Call"
     }
 }
