@@ -8,7 +8,6 @@ import de.jensklingenberg.ktorfit.Callback
 import de.jensklingenberg.ktorfit.converter.KtorfitCallResponseConverter
 import de.jensklingenberg.ktorfit.converter.builtin.FlowRequestConverter
 import de.jensklingenberg.ktorfit.converter.builtin.CallRequestConverter
-import de.jensklingenberg.ktorfit.installKtorfitPlugins
 import de.jensklingenberg.ktorfit.ktorfit
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -29,8 +28,6 @@ val jvmClient = HttpClient {
     install(ContentNegotiation) {
         json(Json { isLenient = true; ignoreUnknownKeys = true })
     }
-
-    installKtorfitPlugins(ResponseResponseConverterPlugin())
 
     this.developmentMode = true
     expectSuccess = false

@@ -9,7 +9,6 @@ import io.ktor.util.reflect.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
-@Deprecated("Use de.jensklingenberg.ktorfit.converter.builtin.CallResponseConverter instead")
 class KtorfitCallResponseConverter : ResponseConverter{
     override fun <RequestType> wrapResponse(
         typeData: TypeData,

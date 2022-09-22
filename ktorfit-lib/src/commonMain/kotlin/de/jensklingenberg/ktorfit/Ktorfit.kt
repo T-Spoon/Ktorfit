@@ -147,13 +147,3 @@ fun ktorfitBuilder(builder: Ktorfit.Builder.() -> Unit) = Ktorfit.Builder().appl
 inline fun <reified T> Ktorfit.create(): T {
     throw NotImplementedError("Ktorfit didn't generate Code for " + T::class.simpleName + " You need to apply the KSP Plugin")
 }
-
-/**
- * Use this function to install KtorfitPlugins to your HTTP
- *
- */
-fun HttpClientConfig<*>.installKtorfitPlugins(vararg responsePlugin: de.jensklingenberg.ktorfit.converter.response.ResponseConverterPlugin) {
-    responsePlugin.forEach {
-        this.install(it)
-    }
-}
