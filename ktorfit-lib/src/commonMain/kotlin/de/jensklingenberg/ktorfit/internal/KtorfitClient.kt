@@ -1,7 +1,7 @@
 package de.jensklingenberg.ktorfit.internal
 
 import de.jensklingenberg.ktorfit.Ktorfit
-import de.jensklingenberg.ktorfit.converter.response.ResponseConverter
+import de.jensklingenberg.ktorfit.converter.response.ResponseConverterPlugin
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*
@@ -45,7 +45,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
                 typeData = requestData.returnTypeData,
                 requestFunction = {
                     try {
-                        val data = suspendRequest<HttpResponse>(requestData)
+                        val data = suspendRequest<HttpResponse, HttpResponse>(requestData)
                         Pair(typeInfo<RequestType?>(), data)
                     } catch (ex: Exception) {
                         throw ex
@@ -68,7 +68,7 @@ class KtorfitClient(val ktorfit: Ktorfit) {
      * This will handle all requests for functions with suspend modifier
      * Used by generated Code
      */
-    suspend inline fun <reified ReturnType> suspendRequest(
+    suspend inline fun <reified ReturnType, reified PRequest : Any?> suspendRequest(
         requestData: RequestData
     ): ReturnType? {
         try {
@@ -84,6 +84,19 @@ class KtorfitClient(val ktorfit: Ktorfit) {
                 return response as ReturnType
             }
 
+            ktorfit.responseConverters.firstOrNull { converter ->
+                converter.supportedType(
+                    requestData.returnTypeData
+                )
+            }?.let {
+                return it.wrapResponse<PRequest>(
+                    typeData = requestData.returnTypeData,
+                    requestFunction = {
+                        Pair(typeInfo<PRequest>(), response)
+                    }, ktorfit
+                ) as ReturnType
+            }
+
             return response.body<ReturnType>()
 
         } catch (exception: Exception) {
@@ -94,7 +107,8 @@ class KtorfitClient(val ktorfit: Ktorfit) {
                 val pluginInstalledList = AttributeKey<Attributes>("ApplicationPluginRegistry")
                 val attributes = httpClient.attributes.getOrNull(pluginInstalledList)
                 val ktorfitPlugins = attributes?.allKeys?.filter { it.name.contains("Ktorfit") }
-                val handlers = ktorfitPlugins?.map { attributes[it] }?.filterIsInstance<ResponseConverter.KtorfitPluginErrorHandler>()
+                val handlers = ktorfitPlugins?.map { attributes[it] }
+                    ?.filterIsInstance<ResponseConverterPlugin.KtorfitPluginErrorHandler>()
                 val errorHandlers = handlers ?: emptyList()
 
                 errorHandlers.forEach { errorHandler ->

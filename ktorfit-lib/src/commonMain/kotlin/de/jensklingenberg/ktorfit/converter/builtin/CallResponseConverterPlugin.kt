@@ -2,11 +2,11 @@ package de.jensklingenberg.ktorfit.converter.builtin
 
 import de.jensklingenberg.ktorfit.Call
 import de.jensklingenberg.ktorfit.Callback
-import de.jensklingenberg.ktorfit.converter.response.ResponseConverter
+import de.jensklingenberg.ktorfit.converter.response.ResponseConverterPlugin
 import io.ktor.client.statement.*
 import io.ktor.util.reflect.*
 
-class CallResponseConverter : ResponseConverter() {
+class CallResponseConverterPlugin : ResponseConverterPlugin() {
 
     override fun pluginForClass() = Call::class
 

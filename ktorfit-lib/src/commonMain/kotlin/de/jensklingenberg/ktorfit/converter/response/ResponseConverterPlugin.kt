@@ -19,7 +19,7 @@ import kotlin.reflect.KClass
  * normal KtorPlugin but extend
  */
 
-abstract class ResponseConverter : HttpClientPlugin<ResponseConverter.KtorfitPluginErrorHandler, ResponseConverter.KtorfitPluginErrorHandler> {
+abstract class ResponseConverterPlugin : HttpClientPlugin<ResponseConverterPlugin.KtorfitPluginErrorHandler, ResponseConverterPlugin.KtorfitPluginErrorHandler> {
 
     data class KtorfitPluginErrorHandler(var onError: (Exception) -> Any? = {}, val clazz: KClass<*>)
 

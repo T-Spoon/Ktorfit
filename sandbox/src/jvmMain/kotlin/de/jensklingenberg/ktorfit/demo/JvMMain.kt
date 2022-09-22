@@ -2,13 +2,12 @@ package de.jensklingenberg.ktorfit.demo
 
 
 import com.example.api.JsonPlaceHolderApi
-import com.example.model.Post
+import com.example.model.Comment
 import com.example.model.jsonPlaceHolderApi
 import de.jensklingenberg.ktorfit.Callback
-import de.jensklingenberg.ktorfit.converter.builtin.CallResponseConverter
+import de.jensklingenberg.ktorfit.converter.KtorfitCallResponseConverter
 import de.jensklingenberg.ktorfit.converter.builtin.FlowRequestConverter
 import de.jensklingenberg.ktorfit.converter.builtin.CallRequestConverter
-import de.jensklingenberg.ktorfit.create
 import de.jensklingenberg.ktorfit.installKtorfitPlugins
 import de.jensklingenberg.ktorfit.ktorfit
 import io.ktor.client.*
@@ -31,7 +30,7 @@ val jvmClient = HttpClient {
         json(Json { isLenient = true; ignoreUnknownKeys = true })
     }
 
-    installKtorfitPlugins(ResponseResponseConverter(), CallResponseConverter())
+    installKtorfitPlugins(ResponseResponseConverterPlugin())
 
     this.developmentMode = true
     expectSuccess = false
@@ -49,32 +48,27 @@ val jvmKtorfit = ktorfit {
         RxRequestConverter(),
         CallRequestConverter()
     )
+    responseConverter(KtorfitCallResponseConverter())
 }
 
 
 fun main() {
 
-    val testApi = jvmKtorfit.create<JsonPlaceHolderApi>()
-
-
-    println("==============================================")
-
-        testApi.callPosts().onExecute(object :Callback<List<Post>>{
-            override fun onResponse(call: List<Post>, response: HttpResponse) {
-                call
-            }
-
-            override fun onError(exception: Throwable) {
-                exception
-            }
-
-        })
-
     runBlocking {
 
 
-      val tt =  jsonPlaceHolderApi.getCommentsByPostId(3)
-        println(tt)
+      val tt =  jsonPlaceHolderApi.callCommentsByPostId(3)
+       tt.onExecute(object :Callback<List<Comment>>{
+           override fun onResponse(call: List<Comment>, response: HttpResponse) {
+               call
+           }
+
+           override fun onError(exception: Throwable) {
+               exception
+           }
+
+       })
+
 
 
         delay(3000)
