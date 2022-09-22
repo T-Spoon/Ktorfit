@@ -54,7 +54,7 @@ class ClientTest {
             val requestData = RequestData(
                 method = "GET", relativeUrl = "posts", returnTypeData = TypeData("kotlin.String")
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
 
 
@@ -75,7 +75,7 @@ class ClientTest {
             val requestData = RequestData(
                 method = "GET", relativeUrl = "http://www.test.de/posts", returnTypeData = TypeData("kotlin.String")
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
 
 

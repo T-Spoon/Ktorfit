@@ -25,7 +25,7 @@ class HeaderTest {
             val requestData = RequestData(
                 method = "GET", relativeUrl = "", returnTypeData = TypeData("kotlin.String"), headers = listOf(HeaderData("Content-Type","application/json"))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
@@ -43,7 +43,7 @@ class HeaderTest {
             val requestData = RequestData(
                 method = "GET", relativeUrl = "", returnTypeData = TypeData("kotlin.String"), headers = listOf(HeaderData("Content-Type",null))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
@@ -68,7 +68,7 @@ class HeaderTest {
             val requestData = RequestData(
                 method = "GET", relativeUrl = "", returnTypeData = TypeData("kotlin.String"), headers = listOf(HeaderData("Accept",testList))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
@@ -93,7 +93,7 @@ class HeaderTest {
             val requestData = RequestData(
                 method = "GET", relativeUrl = "", returnTypeData = TypeData("kotlin.String"), headers = listOf(HeaderData("Accept",testList))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
@@ -118,7 +118,7 @@ class HeaderTest {
             val requestData = RequestData(
                 method = "GET", relativeUrl = "", returnTypeData = TypeData("kotlin.String"), headers = listOf(HeaderData("",testMap))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 

@@ -105,7 +105,7 @@ interface TestService {
         fields = listOf(FieldData("id",id,false,FieldType.FIELD)),
         returnTypeData=TypeData("String?")) 
 
-    return client.suspendRequest<String?>(requestData)
+    return client.suspendRequest<String?, String?>(requestData)
   }"""
 
         val compilation = KotlinCompilation().apply {

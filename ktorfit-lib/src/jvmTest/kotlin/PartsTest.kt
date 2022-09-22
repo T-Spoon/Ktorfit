@@ -28,7 +28,7 @@ class PartsTest {
                 returnTypeData = TypeData("kotlin.String"),
                 parts = mapOf("description" to "test","description2" to "test")
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 

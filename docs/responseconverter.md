@@ -48,7 +48,7 @@ class MyOwnResponseConverter : ResponseConverter {
 You can then add the ResponseConverter on your Ktorfit object.
 
 ```kotlin
-ktorfit.requestConverter(MyOwnResponseConverter())
+ktorfit.responseConverter(MyOwnResponseConverter())
 ```
 
 Now add MyOwnResponse to your function

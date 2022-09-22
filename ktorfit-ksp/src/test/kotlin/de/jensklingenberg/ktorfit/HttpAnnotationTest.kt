@@ -34,7 +34,7 @@ public class _TestServiceImpl(
         relativeUrl="user",
         returnTypeData=TypeData("kotlin.String")) 
 
-    return client.suspendRequest<String>(requestData)!!
+    return client.suspendRequest<String, String>(requestData)!!
   }
 }
 
@@ -96,7 +96,7 @@ interface TestService {
         relativeUrl="user",
         returnTypeData=TypeData("kotlin.String")) 
 
-    return client.suspendRequest<String>(requestData)!!
+    return client.suspendRequest<String, String>(requestData)!!
   }"""
 
         val compilation = KotlinCompilation().apply {
@@ -141,7 +141,7 @@ interface TestService {
         bodyData = body,
         returnTypeData=TypeData("kotlin.String")) 
 
-    return client.suspendRequest<String>(requestData)!!
+    return client.suspendRequest<String, String>(requestData)!!
   }"""
 
         val compilation = KotlinCompilation().apply {

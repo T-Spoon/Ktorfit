@@ -30,7 +30,7 @@ class BodyTest {
                 returnTypeData = TypeData("kotlin.String"),
                 bodyData = "testBody"
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 

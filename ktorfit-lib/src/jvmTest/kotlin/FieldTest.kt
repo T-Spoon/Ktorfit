@@ -30,7 +30,7 @@ class FieldTest {
                 returnTypeData = TypeData( "kotlin.String"),
                 fields = listOf(FieldData(testKey, testValue, false, FieldType.FIELD)),
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 

@@ -30,7 +30,7 @@ class QueryTest {
                 returnTypeData = TypeData("kotlin.String"),
                 queries = listOf(QueryData(testKey, testValue, false, QueryType.QUERY))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
@@ -53,7 +53,7 @@ class QueryTest {
                 returnTypeData = TypeData("kotlin.String"),
                 queries = listOf(QueryData(testKey, null, false, QueryType.QUERY))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
@@ -77,7 +77,7 @@ class QueryTest {
                 returnTypeData = TypeData("kotlin.String"),
                 queries = listOf(QueryData(testKey, testValue, true, QueryType.QUERY))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
@@ -103,7 +103,7 @@ class QueryTest {
                 returnTypeData = TypeData("kotlin.String"),
                 queries = listOf(QueryData(testKey, testValue, false, QueryType.QUERY))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
@@ -129,7 +129,7 @@ class QueryTest {
                 returnTypeData = TypeData("kotlin.String"),
                 queries = listOf(QueryData(testKey, testValue, false, QueryType.QUERY))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
@@ -154,7 +154,7 @@ class QueryTest {
                 returnTypeData = TypeData("kotlin.String"),
                 queries = listOf(QueryData(testKey, testValue, false, QueryType.QUERYNAME))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
@@ -178,7 +178,7 @@ class QueryTest {
                 returnTypeData = TypeData("kotlin.String"),
                 queries = listOf(QueryData(testKey, testValue, false, QueryType.QUERYNAME))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
@@ -202,7 +202,7 @@ class QueryTest {
                 returnTypeData = TypeData("kotlin.String"),
                 queries = listOf(QueryData(testKey, testMap, false, QueryType.QUERYMAP))
             )
-            KtorfitClient(ktorfit).suspendRequest<String>(requestData)
+            KtorfitClient(ktorfit).suspendRequest<String,String>(requestData)
         }
     }
 
