@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 
 class CallResponseConverter : ResponseConverter {
 
-    override fun <RequestType> wrapResponse(
+    override suspend fun <RequestType> wrapResponse(
         typeData: TypeData,
         requestFunction: suspend () -> Pair<TypeInfo, HttpResponse>,
         ktorfit: Ktorfit

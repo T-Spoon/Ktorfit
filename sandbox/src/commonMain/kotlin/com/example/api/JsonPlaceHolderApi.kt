@@ -1,6 +1,7 @@
 package com.example.api
 
 import com.example.model.Comment
+import com.example.model.MyOwnResponse
 import com.example.model.Post
 import de.jensklingenberg.ktorfit.Call
 import de.jensklingenberg.ktorfit.http.*
@@ -36,9 +37,12 @@ interface JsonPlaceHolderApi {
     @GET("posts/{postId}/comments")
     suspend fun getCommentsByPostId(@Path("postId") postId: Int): List<Comment>?
 
+    @GET("posts/{postId}/comments")
+    suspend fun getCommentsByPostIdResponse(@Path("postId") postId: Int): MyOwnResponse<List<Comment>>
+
     @Headers(value = ["Content-Type: application/json"])
     @GET("posts/{postId}/comments")
-    suspend fun callCommentsByPostId(@Path("postId") postId: Int): Call<List<Comment>>
+    fun callCommentsByPostId(@Path("postId") postId: Int): Call<List<Comment>>
 
     @Headers(value = ["Content-Type: application/json"])
     @GET("posts/{postId}/comments")

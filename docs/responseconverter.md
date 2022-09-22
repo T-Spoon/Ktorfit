@@ -24,34 +24,31 @@ To enable that, you have to implement a ResponseConverter. This class will be us
 inside your wrapper class.
 
 ```kotlin
-class MyOwnResponseConverterPlugin : ResponseConverter
-    
-   //The identifier of your plugin. Must be unique
-    override fun getKey(): String {
-        return "ResponsePlugin"
+class MyOwnResponseConverter : ResponseConverter {
+
+    override suspend fun <RequestType> wrapResponse(
+        typeData: TypeData,
+        requestFunction: suspend () -> Pair<TypeInfo, HttpResponse>,
+        ktorfit: Ktorfit
+    ): Any {
+        return try {
+            val (info, response) = requestFunction()
+            MyOwnResponse.success<Any>(response.body(info))
+        } catch (ex: Throwable) {
+            MyOwnResponse.error(ex)
+        }
     }
-    
-    //This will convert T to MyOwnResponse<T>
-    override fun convert(info: TypeInfo, body: Any, response: HttpResponse): Pair<TypeInfo, Any> {
-        val newInfo = TypeInfo(pluginForClass(), info.reifiedType, info.kotlinType)
-        val call = MyOwnResponse.success(body)
-        return newInfo to call
-    }
-    
-    override fun pluginForClass() = MyOwnResponse::class
-    
-    override fun onErrorReturn(exception: Exception): Any? {
-        return MyOwnResponse.error(exception)
+
+    override fun supportedType(typeData: TypeData, isSuspend: Boolean): Boolean {
+        return typeData.qualifiedName == "com.example.model.MyOwnResponse"
     }
 }
 ```
 
-Now you need to install that plugin inside the configuration of your http client
+You can then add the ResponseConverter on your Ktorfit object.
 
 ```kotlin
-val client = HttpClient {
-    installKtorfitPlugins(MyOwnResponseConverter())
-}
+ktorfit.requestConverter(MyOwnResponseConverter())
 ```
 
 Now add MyOwnResponse to your function

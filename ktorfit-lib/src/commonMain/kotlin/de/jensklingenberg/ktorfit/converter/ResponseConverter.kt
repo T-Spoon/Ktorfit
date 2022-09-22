@@ -19,7 +19,7 @@ interface ResponseConverter : CoreRequestConverter {
      * the return type. e.g. for Flow<String> it will be kotlinx.coroutines.flow.Flow
      * @return the wrapped response
      */
-    fun <RequestType : Any?> wrapResponse(
+    suspend fun <RequestType : Any?> wrapResponse(
         typeData: TypeData,
         requestFunction: suspend () -> Pair<TypeInfo, HttpResponse>,
         ktorfit: Ktorfit

@@ -1,6 +1,6 @@
 Because Ktor relies on Coroutines by default your functions need to have the suspend modifier.
 
-To change this you need to use a RequestConverter, you add your own or use [Flow](#flow) or [Call](#call)
+To change this, you need to use a RequestConverter, you add your own or use [Flow](#flow) or [Call](#call)
 
 You can add RequestConverter on your Ktorfit object.
 

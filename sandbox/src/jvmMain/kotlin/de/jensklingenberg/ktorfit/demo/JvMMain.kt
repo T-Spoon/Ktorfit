@@ -3,11 +3,14 @@ package de.jensklingenberg.ktorfit.demo
 
 import com.example.api.JsonPlaceHolderApi
 import com.example.model.Comment
+import com.example.model.MyOwnResponse
+import com.example.model.MyOwnResponseConverter
 import com.example.model.jsonPlaceHolderApi
 import de.jensklingenberg.ktorfit.Callback
 import de.jensklingenberg.ktorfit.converter.builtin.CallResponseConverter
 import de.jensklingenberg.ktorfit.converter.builtin.FlowRequestConverter
 import de.jensklingenberg.ktorfit.converter.builtin.CallRequestConverter
+import de.jensklingenberg.ktorfit.create
 import de.jensklingenberg.ktorfit.ktorfit
 import io.ktor.client.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -45,27 +48,28 @@ val jvmKtorfit = ktorfit {
         RxRequestConverter(),
         CallRequestConverter()
     )
-    responseConverter(CallResponseConverter())
+    responseConverter(CallResponseConverter(), MyOwnResponseConverter())
 }
 
 
 fun main() {
 
+
     runBlocking {
 
+     val api =   jvmKtorfit.create<JsonPlaceHolderApi>()
 
-      val tt =  jsonPlaceHolderApi.callCommentsByPostId(3)
-       tt.onExecute(object :Callback<List<Comment>>{
-           override fun onResponse(call: List<Comment>, response: HttpResponse) {
-               call
-           }
 
-           override fun onError(exception: Throwable) {
-               exception
-           }
+       val test = api.getCommentsByPostIdResponse(3)
 
-       })
-
+        when(test){
+            is MyOwnResponse.Success -> {
+                test
+            }
+            else->{
+                test
+            }
+        }
 
 
         delay(3000)
